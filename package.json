@@ -1,0 +1,54 @@
+{
+  "name": "ecarxbot",
+  "version": "1.0.0",
+  "description": "Customized chatbot with wake word 'hi ecarx' for Google Auto platform",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test:local": "node src/simpleBot.js",
+    "dev": "nodemon src/index.js",
+    "build": "webpack --mode production",
+    "test": "jest",
+    "demo": "node src/demo/simpleDemo.js",
+    "demo:full": "node src/demo/aiProviderDemo.js",
+    "demo:interactive": "node src/demo/aiProviderDemo.js --interactive",
+    "demo:help": "node src/demo/aiProviderDemo.js --help",
+    "demo:twitter": "node src/demo/twitterDemo.js",
+    "demo:twitter:user": "node src/demo/twitterDemo.js user",
+    "test:twitter": "node src/testTwitterBot.js",
+    "chat": "node src/simpleTextBot.js",
+    "chat:test": "node src/simpleTextBot.js --test-twitter"
+  },
+  "keywords": [
+    "chatbot",
+    "google-auto",
+    "voice-assistant",
+    "wake-word",
+    "ecarx"
+  ],
+  "author": "ECARX Bot Developer",
+  "license": "MIT",
+  "dependencies": {
+    "@google-cloud/speech": "^6.6.0",
+    "@google-cloud/text-to-speech": "^5.3.0",
+    "@picovoice/porcupine-node": "^3.0.1",
+    "@picovoice/pvrecorder-node": "^1.2.1",
+    "axios": "^1.10.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "node-record-lpcm16": "^1.0.1",
+    "openai": "^4.20.1",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.1",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
