@@ -1,0 +1,42 @@
+# Environment variables (contains API keys)
+.env
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+logs/
+
+# Cache
+.cache/
+.tmp/
+
+# Android build files
+android/app/build/
+android/build/
+
+# Google Cloud credentials
+*.json
+service-account-*.json
+
+# Temporary files
+*.tmp
+*.temp
