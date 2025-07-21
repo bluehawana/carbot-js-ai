@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/ecarxbot.iml" filepath="$PROJECT_DIR$/.idea/ecarxbot.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/carbot-js-ai.iml" filepath="$PROJECT_DIR$/.idea/carbot-js-ai.iml" />
     </modules>
   </component>
 </project>

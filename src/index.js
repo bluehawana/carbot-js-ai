@@ -5,7 +5,7 @@ const GoogleAutoAPI = require('./api/googleAutoAPI');
 const CarFeatures = require('./utils/carFeatures');
 
 // Initialize the application
-class EcarxBot {
+class CarBot {
     constructor() {
         this.carFeatures = new CarFeatures();
         this.api = new GoogleAutoAPI({
@@ -17,19 +17,19 @@ class EcarxBot {
 
     async start() {
         try {
-            console.log('🚗 Starting ECARX Bot...');
+            console.log('🚗 Starting CarBot...');
             console.log('🎯 Target: Google Auto Platform');
             console.log('🎤 Wake word: "hi ecarx"');
             
             // Start the API server
             this.api.start();
             
-            console.log('✅ ECARX Bot is ready!');
+            console.log('✅ CarBot is ready!');
             console.log('📱 API server running on port', process.env.PORT || 3000);
             console.log('🎧 Listening for wake word...');
             
         } catch (error) {
-            console.error('❌ Failed to start ECARX Bot:', error);
+            console.error('❌ Failed to start CarBot:', error);
             process.exit(1);
         }
     }
@@ -42,7 +42,7 @@ class EcarxBot {
                 this.api.stop();
             }
             
-            console.log('✅ ECARX Bot stopped');
+            console.log('✅ CarBot stopped');
             process.exit(0);
         };
 
@@ -85,15 +85,15 @@ function checkEnvironment() {
 
 // Main execution
 if (require.main === module) {
-    console.log('🚀 ECARX Bot - Voice Assistant for Google Auto');
+    console.log('🚀 CarBot - Voice Assistant for Google Auto');
     console.log('================================================');
     
     // Check environment
     checkEnvironment();
     
     // Create and start the bot
-    const bot = new EcarxBot();
+    const bot = new CarBot();
     bot.start();
 }
 
-module.exports = EcarxBot;
+module.exports = CarBot;

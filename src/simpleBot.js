@@ -4,7 +4,7 @@ require('dotenv').config();
 const readline = require('readline');
 const axios = require('axios');
 
-class SimpleEcarxBot {
+class SimpleCarBot {
     constructor() {
         this.rl = readline.createInterface({
             input: process.stdin,
@@ -22,10 +22,10 @@ class SimpleEcarxBot {
     }
 
     async start() {
-        console.log('🚗 ECARX Bot - Voice Assistant for Cars');
+        console.log('🚗 CarBot - Voice Assistant for Cars');
         console.log('======================================');
         console.log('');
-        console.log('🎤 Wake word: "hi ecarx"');
+        console.log('🎤 Wake word: "hi carbot"');
         console.log('🤖 AI: Groq Llama3 (Ultra-fast & Free)');
         console.log('📱 Running locally on your device');
         console.log('');
@@ -35,7 +35,7 @@ class SimpleEcarxBot {
         console.log('  • "help" - Show all commands');
         console.log('  • "exit" - Quit');
         console.log('');
-        console.log('🎯 ECARX Bot ready! Try: "Hi ECARX, navigate to the mall"');
+        console.log('🎯 CarBot ready! Try: "Hi CarBot, navigate to the mall"');
         console.log('');
         
         this.startConversation();
@@ -46,7 +46,7 @@ class SimpleEcarxBot {
             const message = input.trim();
             
             if (message.toLowerCase() === 'exit') {
-                console.log('👋 ECARX Bot shutting down. Safe travels!');
+                console.log('👋 CarBot shutting down. Safe travels!');
                 this.rl.close();
                 return;
             }
@@ -73,21 +73,21 @@ class SimpleEcarxBot {
 
     async processMessage(message) {
         // Check for wake word
-        if (message.toLowerCase().includes('hi ecarx') || message.toLowerCase().includes('hey ecarx')) {
-            console.log('🎤 Wake word detected! Activating ECARX...');
+        if (message.toLowerCase().includes('hi carbot') || message.toLowerCase().includes('hey carbot')) {
+            console.log('🎤 Wake word detected! Activating CarBot...');
         }
         
         console.log('🧠 Thinking...');
         
         try {
             const response = await this.getAIResponse(message);
-            console.log(`🤖 ECARX: ${response}`);
+            console.log(`🤖 CarBot: ${response}`);
             
             // Simulate car actions based on the message
             this.handleCarActions(message);
             
         } catch (error) {
-            console.log('🤖 ECARX: I understand you want help with your car. How can I assist you today?');
+            console.log('🤖 CarBot: I understand you want help with your car. How can I assist you today?');
         }
         
         console.log('');
@@ -99,7 +99,7 @@ class SimpleEcarxBot {
             messages: [
                 {
                     role: 'system',
-                    content: `You are ECARX, a helpful car voice assistant. 
+                    content: `You are CarBot, a helpful car voice assistant. 
                     
 Current car status:
 - Speed: ${this.carStatus.speed} mph
@@ -174,35 +174,35 @@ Respond briefly and helpfully to car-related requests. Keep responses under 30 w
 
     showHelp() {
         console.log('');
-        console.log('🆘 ECARX Bot Help:');
+        console.log('🆘 CarBot Help:');
         console.log('==================');
         console.log('');
         console.log('Car Functions:');
-        console.log('  "Hi ECARX, navigate to [place]"  - Start navigation');
-        console.log('  "Hi ECARX, play music"           - Start music');
-        console.log('  "Hi ECARX, stop music"           - Stop music');
-        console.log('  "Hi ECARX, what\'s my fuel level?" - Check fuel');
-        console.log('  "Hi ECARX, call emergency"       - Emergency call');
+        console.log('  "Hi CarBot, navigate to [place]"  - Start navigation');
+        console.log('  "Hi CarBot, play music"           - Start music');
+        console.log('  "Hi CarBot, stop music"           - Stop music');
+        console.log('  "Hi CarBot, what\'s my fuel level?" - Check fuel');
+        console.log('  "Hi CarBot, call emergency"       - Emergency call');
         console.log('');
         console.log('Commands:');
         console.log('  "car"   - Show vehicle status');
         console.log('  "help"  - Show this help');
-        console.log('  "exit"  - Quit ECARX Bot');
+        console.log('  "exit"  - Quit CarBot');
         console.log('');
         console.log('Examples:');
-        console.log('  "Hi ECARX, navigate to the nearest restaurant"');
-        console.log('  "Hi ECARX, play some jazz music"');
-        console.log('  "Hi ECARX, how much fuel do I have?"');
+        console.log('  "Hi CarBot, navigate to the nearest restaurant"');
+        console.log('  "Hi CarBot, play some jazz music"');
+        console.log('  "Hi CarBot, how much fuel do I have?"');
         console.log('');
     }
 }
 
 // Start the bot
-const bot = new SimpleEcarxBot();
+const bot = new SimpleCarBot();
 
 // Handle Ctrl+C gracefully
 process.on('SIGINT', () => {
-    console.log('\n👋 ECARX Bot shutting down. Safe travels!');
+    console.log('\n👋 CarBot shutting down. Safe travels!');
     process.exit(0);
 });
 

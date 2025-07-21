@@ -1,5 +1,5 @@
 {
-  "name": "ecarxbot",
+  "name": "carbot-js-ai",
   "version": "1.0.0",
   "description": "Customized chatbot with wake word 'hi ecarx' for Google Auto platform",
   "main": "src/index.js",
