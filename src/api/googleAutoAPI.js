@@ -29,6 +29,9 @@ class GoogleAutoAPI {
 
     async initializeServices() {
         try {
+            // Validate required API keys
+            this.validateAPIKeys();
+
             // Initialize wake word detector
             this.wakeWordDetector = new WakeWordDetector(
                 process.env.PICOVOICE_ACCESS_KEY,
@@ -52,18 +55,56 @@ class GoogleAutoAPI {
             this.intentRecognition = new IntentRecognition();
 
             // Set up wake word detection
-            await this.wakeWordDetector.initialize();
-            this.wakeWordDetector.onWakeWord(() => {
-                console.log('Wake word detected: "hi ecarx"');
-                this.handleWakeWord();
-            });
+            const initialized = await this.wakeWordDetector.initialize();
+            if (initialized) {
+                this.wakeWordDetector.onWakeWord(() => {
+                    console.log('Wake word detected: "Hej Car"');
+                    this.handleWakeWord();
+                });
+            } else {
+                console.log('Wake word detector not initialized - using fallback detection');
+            }
 
             this.wakeWordDetector.startListening();
 
             console.log('All services initialized successfully');
         } catch (error) {
             console.error('Failed to initialize services:', error);
+            // Continue without crashing - some services may still work
         }
+    }
+
+    validateAPIKeys() {
+        const requiredKeys = ['OPENAI_API_KEY'];
+        const missingKeys = [];
+        const warnings = [];
+
+        // Check required keys
+        for (const key of requiredKeys) {
+            if (!process.env[key]) {
+                missingKeys.push(key);
+            }
+        }
+
+        // Check optional keys
+        if (!process.env.PICOVOICE_ACCESS_KEY) {
+            warnings.push('PICOVOICE_ACCESS_KEY not set - using fallback wake word detection');
+        }
+
+        if (!process.env.GOOGLE_CLOUD_KEY_FILE && !process.env.GOOGLE_CLOUD_PROJECT_ID) {
+            warnings.push('Google Cloud credentials not set - speech services may not work');
+        }
+
+        if (missingKeys.length > 0) {
+            console.error('❌ Missing required API keys:', missingKeys.join(', '));
+            console.error('Please check your .env file and add the missing keys');
+        }
+
+        if (warnings.length > 0) {
+            warnings.forEach(warning => console.warn('⚠️', warning));
+        }
+
+        console.log('✅ API key validation completed');
     }
 
     setupRoutes() {
@@ -176,6 +217,103 @@ class GoogleAutoAPI {
                 res.json({ success: true });
             } catch (error) {
                 res.status(500).json({ error: error.message });
+            }
+        });
+
+        // Android Auto integration endpoints
+        this.app.post('/api/voice', async (req, res) => {
+            try {
+                const { command, type } = req.body;
+                console.log('Voice command received from Android:', command);
+                
+                const result = await this.processTextInput(command);
+                res.json({
+                    success: true,
+                    response: result.text || 'Command processed',
+                    actions: result.actions || [],
+                    audioResponse: result.audioResponse
+                });
+            } catch (error) {
+                res.status(500).json({ error: error.message, success: false });
+            }
+        });
+
+        this.app.get('/api/car/status', (req, res) => {
+            try {
+                // In real implementation, get actual car data
+                const mockCarStatus = {
+                    speed: 65,
+                    fuelLevel: 75,
+                    batteryLevel: 85,
+                    temperature: 72,
+                    location: {
+                        lat: 37.7749,
+                        lon: -122.4194,
+                        address: "San Francisco, CA"
+                    },
+                    engineRunning: true,
+                    doorLocked: true,
+                    lightsOn: false
+                };
+                
+                res.json({
+                    success: true,
+                    status: mockCarStatus
+                });
+            } catch (error) {
+                res.status(500).json({ error: error.message, success: false });
+            }
+        });
+
+        this.app.post('/api/car/action', async (req, res) => {
+            try {
+                const { action, params } = req.body;
+                console.log('Car action requested:', action, params);
+                
+                // Process car action
+                let response = '';
+                switch (action) {
+                    case 'lock_doors':
+                        response = 'Doors locked';
+                        break;
+                    case 'unlock_doors':
+                        response = 'Doors unlocked';
+                        break;
+                    case 'start_engine':
+                        response = 'Engine started';
+                        break;
+                    case 'set_temperature':
+                        response = `Temperature set to ${params.temperature}°F`;
+                        break;
+                    case 'turn_on_lights':
+                        response = 'Lights turned on';
+                        break;
+                    case 'turn_off_lights':
+                        response = 'Lights turned off';
+                        break;
+                    default:
+                        response = `Action ${action} executed`;
+                }
+                
+                const audioResponse = await this.textToSpeech.synthesizeCasual(response);
+                
+                res.json({
+                    success: true,
+                    response: response,
+                    audioResponse: audioResponse.toString('base64')
+                });
+            } catch (error) {
+                res.status(500).json({ error: error.message, success: false });
+            }
+        });
+
+        this.app.post('/api/navigation', async (req, res) => {
+            try {
+                const { destination } = req.body;
+                const result = await this.startNavigation(destination);
+                res.json(result);
+            } catch (error) {
+                res.status(500).json({ error: error.message, success: false });
             }
         });
     }
