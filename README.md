@@ -1,14 +1,16 @@
-# ECARX Bot - Voice Assistant for Google Auto
+# CarBot AI - Advanced Voice Assistant for Android Auto
 
-A customized chatbot with wake word "hi ecarx" designed for Google Auto platform integration.
+An intelligent AI voice assistant with real-time data searching capabilities, designed for Android Auto platform integration. This advanced voice bot provides superior conversational AI with live internet access, making it more capable than traditional voice assistants.
 
 ## Features
 
-- Wake word detection ("hi ecarx")
-- Speech recognition and text-to-speech
-- Natural language conversation
-- Car-specific features (navigation, music control)
-- Google Auto platform integration
+- Advanced wake word detection ("Hej Car")
+- Real-time web search and data retrieval
+- Intelligent speech recognition and natural text-to-speech
+- Context-aware conversations with memory
+- Car-optimized interface and controls
+- Live traffic, weather, and location data
+- Android Auto platform integration
 
 ## Setup
 
