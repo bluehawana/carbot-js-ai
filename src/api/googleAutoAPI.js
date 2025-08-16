@@ -180,6 +180,156 @@ class GoogleAutoAPI {
                 });
             }
         });
+        
+        // Browser-based wake word trigger interface
+        this.app.get('/test-wake-word', (req, res) => {
+            res.send(`
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CarBot Wake Word Test</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px; 
+            margin: 50px auto; 
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        h1 { 
+            text-align: center; 
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        .trigger-btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border: none;
+            color: white;
+            padding: 20px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            width: 100%;
+            margin: 10px 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+        }
+        .trigger-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        .trigger-btn:active {
+            transform: translateY(0);
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-left: 4px solid #4ECDC4;
+        }
+        .commands {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        .command {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .icon { font-size: 1.5em; margin-right: 10px; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>🚗 CarBot Wake Word Test</h1>
+        
+        <button class="trigger-btn" onclick="triggerWakeWord()">
+            <span class="icon">🎤</span>Trigger "Hello My Car"
+        </button>
+        
+        <div id="status" class="status">
+            Ready to trigger wake word...
+        </div>
+        
+        <div class="commands">
+            <h3>🎯 Example Voice Commands to Try:</h3>
+            <div class="command">💬 "What's the weather like?"</div>
+            <div class="command">🧭 "Navigate to the nearest gas station"</div>
+            <div class="command">🎵 "Play some music"</div>
+            <div class="command">📞 "Call John"</div>
+            <div class="command">🌡️ "Set temperature to 72 degrees"</div>
+        </div>
+        
+        <div style="margin-top: 30px; text-align: center; opacity: 0.8;">
+            <p>💡 This triggers the same wake word as saying "Hello My Car"</p>
+            <p>🔄 Auto-demo triggers every 45 seconds if you prefer to wait</p>
+        </div>
+    </div>
+
+    <script>
+        async function triggerWakeWord() {
+            const btn = document.querySelector('.trigger-btn');
+            const status = document.getElementById('status');
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="icon">⏳</span>Triggering...';
+            status.innerHTML = '🎯 Activating wake word...';
+            
+            try {
+                const response = await fetch('/api/wake-word', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    status.innerHTML = '✅ Wake word activated! CarBot is now listening...';
+                    btn.innerHTML = '<span class="icon">✅</span>Activated Successfully!';
+                    
+                    setTimeout(() => {
+                        btn.disabled = false;
+                        btn.innerHTML = '<span class="icon">🎤</span>Trigger "Hello My Car"';
+                        status.innerHTML = 'Ready to trigger wake word again...';
+                    }, 3000);
+                } else {
+                    throw new Error(result.error || 'Failed to trigger wake word');
+                }
+            } catch (error) {
+                status.innerHTML = '❌ Error: ' + error.message;
+                btn.disabled = false;
+                btn.innerHTML = '<span class="icon">🎤</span>Trigger "Hello My Car"';
+            }
+        }
+        
+        // Auto-refresh status every 5 seconds
+        setInterval(() => {
+            const now = new Date().toLocaleTimeString();
+            if (document.getElementById('status').innerHTML.includes('Ready')) {
+                document.getElementById('status').innerHTML = 'Ready to trigger wake word... (' + now + ')';
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
+            `);
+        });
     }
 
     start() {

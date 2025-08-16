@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
+    "start:mic": "node run-with-mic.js",
     "test:local": "node src/simpleBot.js",
     "dev": "nodemon src/index.js",
     "build": "webpack --mode production",

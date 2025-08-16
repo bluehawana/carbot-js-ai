@@ -243,10 +243,26 @@ class WakeWordDetector {
     // Fallback wake word detection using simple audio analysis
     async initializeFallback() {
         console.log('🔄 Initializing fallback wake word detection...');
-        console.log('💡 TIP: Since microphone access is not available, you can:');
-        console.log('   1. Send POST request to http://localhost:3000/api/wake-word');
-        console.log('   2. Or wait for the automatic test activation every 30 seconds');
-        console.log('   3. Check microphone permissions in System Preferences > Security & Privacy');
+        console.log('');
+        console.log('🚫 Microphone access not available from Terminal.');
+        console.log('');
+        console.log('💡 SOLUTIONS:');
+        console.log('   ┌─ Option 1: API Trigger ─────────────────────────┐');
+        console.log('   │ curl -X POST http://localhost:3000/api/wake-word │');
+        console.log('   └─────────────────────────────────────────────────┘');
+        console.log('');
+        console.log('   ┌─ Option 2: Browser Trigger ─────────────────────┐');
+        console.log('   │ Open: http://localhost:3000/test-wake-word       │');
+        console.log('   └─────────────────────────────────────────────────┘');
+        console.log('');
+        console.log('   ┌─ Option 3: Auto Demo (every 30s) ───────────────┐');
+        console.log('   │ Just wait and system will auto-trigger          │');
+        console.log('   └─────────────────────────────────────────────────┘');
+        console.log('');
+        console.log('   ┌─ Option 4: Native App (Future) ─────────────────┐');
+        console.log('   │ Run as Electron app for real microphone access  │');
+        console.log('   └─────────────────────────────────────────────────┘');
+        console.log('');
         
         this.isFallback = true;
         this.audioBuffer = Buffer.alloc(0);
@@ -259,22 +275,27 @@ class WakeWordDetector {
         // Status update timer
         this.wakeWordTimer = setInterval(() => {
             if (this.isListening) {
-                console.log('🎤 Fallback mode active - listening for manual activation or API call');
+                console.log('🎤 Fallback mode: Ready for manual activation');
+                console.log('   💡 Try: curl -X POST http://localhost:3000/api/wake-word');
                 this.broadcastListeningStatus('listening');
+            }
+        }, 20000);
+        
+        // First auto-trigger after 15 seconds, then every 45 seconds
+        setTimeout(() => {
+            if (this.isListening) {
+                console.log('🎯 Demo auto-activation (first trigger)');
+                this.triggerWakeWord('auto-demo');
             }
         }, 15000);
         
-        // Test voice activation every 30 seconds for demo
         this.testTimer = setInterval(() => {
             if (this.isListening) {
-                console.log('🎯 Auto-activating wake word for demo (every 30s)');
-                console.log('💬 Say: "Hello My Car, what\'s the weather like?"');
-                this.broadcastListeningStatus('activated');
-                if (this.callbacks.onWakeWord) {
-                    this.callbacks.onWakeWord();
-                }
+                console.log('🎯 Demo auto-activation (every 45s)');
+                console.log('💬 Simulating: "Hello My Car, what\'s the weather like?"');
+                this.triggerWakeWord('auto-demo');
             }
-        }, 30000);
+        }, 45000);
 
         console.log('✅ Fallback detection initialized');
         return true;
