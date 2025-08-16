@@ -9,7 +9,7 @@ class AIProviderDemo {
     }
 
     async runDemo() {
-        console.log('🚗 ECARX Bot AI Provider Demo');
+        console.log('🚗 CarBot AI Provider Demo');
         console.log('============================');
         console.log('');
 
@@ -47,11 +47,11 @@ class AIProviderDemo {
         const testMessage = [
             {
                 role: 'system',
-                content: 'You are ECARX, a car assistant. Respond briefly and helpfully.'
+                content: 'You are CarBot, a car assistant. Respond briefly and helpfully.'
             },
             {
                 role: 'user',
-                content: 'Hi ECARX, navigate to the nearest gas station.'
+                content: 'Hi CarBot, navigate to the nearest gas station.'
             }
         ];
 
@@ -62,7 +62,7 @@ class AIProviderDemo {
         }
 
         console.log('');
-        console.log('🎯 Demo completed! Use any of the free providers for your ECARX bot.');
+        console.log('🎯 Demo completed! Use any of the free providers for your CarBot.');
     }
 
     async testProvider(providerName, messages) {
@@ -139,7 +139,7 @@ class AIProviderDemo {
         const conversationHistory = [
             {
                 role: 'system',
-                content: 'You are ECARX, a helpful car assistant. Keep responses brief and car-focused.'
+                content: 'You are CarBot, a helpful car assistant. Keep responses brief and car-focused.'
             }
         ];
 
@@ -169,7 +169,7 @@ class AIProviderDemo {
                         temperature: 0.7
                     });
 
-                    console.log(`ECARX (${response.provider}): ${response.content}\n`);
+                    console.log(`CarBot (${response.provider}): ${response.content}\n`);
 
                     conversationHistory.push({
                         role: 'assistant',
@@ -188,7 +188,7 @@ class AIProviderDemo {
     }
 
     showUsageInstructions() {
-        console.log('\n📚 How to use AI Providers in ECARX Bot:');
+        console.log('\n📚 How to use AI Providers in CarBot:');
         console.log('========================================');
         console.log('');
         console.log('1. Set your preferred AI provider in .env:');
@@ -213,7 +213,7 @@ class AIProviderDemo {
         console.log('4. Local option (no API key needed):');
         console.log('   • Ollama: Install locally from https://ollama.ai');
         console.log('');
-        console.log('5. Start ECARX Bot:');
+        console.log('5. Start CarBot:');
         console.log('   npm start');
         console.log('');
     }

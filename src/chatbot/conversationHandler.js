@@ -24,7 +24,7 @@ class ConversationHandler {
     }
 
     getDefaultSystemPrompt() {
-        return `You are ECARX, an intelligent voice assistant designed for cars. You are helpful, concise, and safety-focused.
+        return `You are CarBot, an intelligent voice assistant designed for cars. You are helpful, concise, and safety-focused.
 
 Key guidelines:
 - Keep responses short and clear for safe driving
@@ -219,7 +219,7 @@ Remember: You are activated by the wake word "Hej Car" and should respond natura
             case 'twitter':
                 return "I can check Twitter for you. Try asking about specific users like Elon Musk or Donald Trump.";
             case 'help':
-                return "I'm ECARX, your car assistant. I can help with navigation, music, calls, Twitter updates, and more.";
+                return "I'm CarBot, your car assistant. I can help with navigation, music, calls, Twitter updates, and more.";
             default:
                 return "I'm sorry, I didn't understand that. How can I help you?";
         }

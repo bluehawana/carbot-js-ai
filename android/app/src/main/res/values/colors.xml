@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- CarBot Brand Colors -->
+    <color name="carbot_primary">#1E88E5</color>
+    <color name="carbot_primary_dark">#1565C0</color>
+    <color name="carbot_accent">#FF5722</color>
+    
+    <!-- Car App Colors -->
+    <color name="car_primary">#2196F3</color>
+    <color name="car_primary_dark">#1976D2</color>
+    <color name="car_accent">#FFC107</color>
+    
+    <!-- Standard Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gray_light">#F5F5F5</color>
+    <color name="gray_medium">#9E9E9E</color>
+    <color name="gray_dark">#424242</color>
+    
+    <!-- Status Colors -->
+    <color name="success_green">#4CAF50</color>
+    <color name="warning_orange">#FF9800</color>
+    <color name="error_red">#F44336</color>
+</resources>

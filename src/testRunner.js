@@ -6,7 +6,7 @@ const AIProvider = require('./ai/aiProvider');
 const ConversationHandler = require('./chatbot/conversationHandler');
 const CarFeatures = require('./utils/carFeatures');
 
-class EcarxTestRunner {
+class CarBotTestRunner {
     constructor() {
         this.carFeatures = new CarFeatures();
         this.conversationHandler = new ConversationHandler({
@@ -22,10 +22,10 @@ class EcarxTestRunner {
     }
 
     async start() {
-        console.log('🚗 ECARX Bot - Local Test Runner');
+        console.log('🚗 CarBot - Local Test Runner');
         console.log('================================');
         console.log('');
-        console.log('🎤 Wake word: "hi ecarx"');
+        console.log('🎤 Wake word: "hi carbot"');
         console.log('📱 Running on your device for testing');
         console.log('🔧 Type "config" to change AI provider');
         console.log('❌ Type "exit" to quit');
@@ -35,7 +35,7 @@ class EcarxTestRunner {
         await this.showConfiguration();
         
         this.isRunning = true;
-        console.log('🎯 ECARX Bot is ready! Type your message or say "hi ecarx"...');
+        console.log('🎯 CarBot is ready! Type your message or say "hi carbot"...');
         console.log('');
         
         this.startConversation();
@@ -77,7 +77,7 @@ class EcarxTestRunner {
             
             // Handle special commands
             if (trimmedInput === 'exit') {
-                console.log('👋 Goodbye! ECARX Bot shutting down...');
+                console.log('👋 Goodbye! CarBot shutting down...');
                 this.rl.close();
                 process.exit(0);
                 return;
@@ -102,8 +102,8 @@ class EcarxTestRunner {
             }
             
             // Check for wake word
-            if (trimmedInput.includes('hi ecarx') || trimmedInput.includes('hey ecarx')) {
-                console.log('🎤 Wake word detected! ECARX activated...');
+            if (trimmedInput.includes('hi carbot') || trimmedInput.includes('hey carbot')) {
+                console.log('🎤 Wake word detected! CarBot activated...');
                 console.log('');
             }
             
@@ -125,7 +125,7 @@ class EcarxTestRunner {
             // Process with conversation handler
             const response = await this.conversationHandler.processMessage(message, carContext);
             
-            console.log(`🤖 ECARX: ${response.response}`);
+            console.log(`🤖 CarBot: ${response.response}`);
             
             // Handle actions
             if (response.actions && response.actions.length > 0) {
@@ -140,7 +140,7 @@ class EcarxTestRunner {
             
         } catch (error) {
             console.log(`❌ Error: ${error.message}`);
-            console.log('🤖 ECARX: Sorry, I had trouble processing that. Could you try again?');
+            console.log('🤖 CarBot: Sorry, I had trouble processing that. Could you try again?');
             console.log('');
         }
     }
@@ -209,15 +209,15 @@ class EcarxTestRunner {
 
     showHelp() {
         console.log('');
-        console.log('🆘 ECARX Bot Help:');
+        console.log('🆘 CarBot Help:');
         console.log('==================');
         console.log('');
         console.log('Commands:');
-        console.log('  "hi ecarx" + message  - Activate with wake word');
+        console.log('  "hi carbot" + message  - Activate with wake word');
         console.log('  "config"              - Change AI provider');
         console.log('  "car"                 - Show car status');
         console.log('  "help"                - Show this help');
-        console.log('  "exit"                - Quit ECARX Bot');
+        console.log('  "exit"                - Quit CarBot');
         console.log('');
         console.log('Car Functions:');
         console.log('  "Navigate to [place]" - Start navigation');
@@ -227,9 +227,9 @@ class EcarxTestRunner {
         console.log('  "Set temperature"     - Climate control');
         console.log('');
         console.log('Examples:');
-        console.log('  "Hi ECARX, navigate to the nearest gas station"');
-        console.log('  "Hi ECARX, play some jazz music"');
-        console.log('  "Hi ECARX, what\'s my fuel level?"');
+        console.log('  "Hi CarBot, navigate to the nearest gas station"');
+        console.log('  "Hi CarBot, play some jazz music"');
+        console.log('  "Hi CarBot, what\'s my fuel level?"');
         console.log('');
     }
 
@@ -253,18 +253,18 @@ class EcarxTestRunner {
 
 // Main execution
 if (require.main === module) {
-    const testRunner = new EcarxTestRunner();
+    const testRunner = new CarBotTestRunner();
     
     // Handle graceful shutdown
     process.on('SIGINT', () => {
-        console.log('\n👋 ECARX Bot shutting down...');
+        console.log('\n👋 CarBot shutting down...');
         process.exit(0);
     });
     
     testRunner.start().catch(error => {
-        console.error('❌ Failed to start ECARX Bot:', error);
+        console.error('❌ Failed to start CarBot:', error);
         process.exit(1);
     });
 }
 
-module.exports = EcarxTestRunner;
+module.exports = CarBotTestRunner;

@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# ECARX Bot Android Auto Deployment Script
+# CarBot Bot Android Auto Deployment Script
 
 set -e
 
-echo "📱 ECARX Bot Android Auto Deployment"
+echo "📱 CarBot Bot Android Auto Deployment"
 echo "===================================="
 
 # Check if Android SDK is installed
@@ -70,10 +70,10 @@ if [ $? -eq 0 ]; then
     echo "📋 Next steps:"
     echo "1. Enable Android Auto on your device"
     echo "2. Connect to Android Auto compatible car"
-    echo "3. Say 'Hi ECARX' to activate the assistant"
+    echo "3. Say 'Hi CarBot' to activate the assistant"
     echo ""
     echo "🔧 For debugging, use:"
-    echo "   adb logcat | grep ECARX"
+    echo "   adb logcat | grep CarBot"
 else
     echo "❌ APK installation failed"
     exit 1

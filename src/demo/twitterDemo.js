@@ -9,7 +9,7 @@ class TwitterDemo {
     }
 
     async runDemo() {
-        console.log('🐦 Twitter API Demo for ECARX Bot');
+        console.log('🐦 Twitter API Demo for CarBot');
         console.log('==================================\n');
 
         // Check if Twitter is available

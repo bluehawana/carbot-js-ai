@@ -11,11 +11,11 @@ class TwitterBotTest {
     }
 
     async testTwitterQueries() {
-        console.log('🤖 Testing ECARX Bot Twitter Integration');
+        console.log('🤖 Testing CarBot Twitter Integration');
         console.log('=====================================\n');
 
         const testQueries = [
-            "Hi ECARX, what is the newest Twitter of Elon Musk now?",
+            "Hi CarBot, what is the newest Twitter of Elon Musk now?",
             "What's Trump's latest tweet?",
             "Show me Elon's recent tweets",
             "What are the latest Twitter updates?",
@@ -30,7 +30,7 @@ class TwitterBotTest {
                 const result = await this.conversationHandler.processMessage(query);
                 
                 console.log(`🔍 Intent: ${result.intent}`);
-                console.log(`🤖 ECARX: "${result.response}"`);
+                console.log(`🤖 CarBot: "${result.response}"`);
                 
                 if (result.actions && result.actions.length > 0) {
                     console.log(`🎯 Actions: ${result.actions.map(a => a.type).join(', ')}`);
@@ -56,7 +56,7 @@ class TwitterBotTest {
             const result = await this.conversationHandler.processMessage(query);
             
             console.log(`🔍 Intent detected: ${result.intent}`);
-            console.log(`🤖 ECARX response: "${result.response}"`);
+            console.log(`🤖 CarBot response: "${result.response}"`);
             
             if (result.actions && result.actions.length > 0) {
                 console.log(`🎯 Actions triggered:`, result.actions);

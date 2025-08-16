@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# ECARX Bot Installation Script
+# CarBot Installation Script
 # For Google Auto Platform
 
 set -e
 
-echo "🚗 ECARX Bot Installation Script"
+echo "🚗 CarBot Installation Script"
 echo "================================="
 
 # Check if Node.js is installed
@@ -34,13 +34,13 @@ fi
 echo "✅ npm is available"
 
 # Create project directory if it doesn't exist
-if [ ! -d "ecarxbot" ]; then
+if [ ! -d "carbot" ]; then
     echo "📁 Creating project directory..."
-    mkdir -p ecarxbot
-    cd ecarxbot
+    mkdir -p carbot
+    cd carbot
 else
     echo "📁 Using existing project directory..."
-    cd ecarxbot
+    cd carbot
 fi
 
 # Install dependencies

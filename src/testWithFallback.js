@@ -4,16 +4,16 @@ require('dotenv').config();
 const ConversationHandler = require('./chatbot/conversationHandler');
 
 async function testWithRetry() {
-    console.log('🚗 ECARX Bot - Continuous Testing');
+    console.log('🚗 CarBot - Continuous Testing');
     console.log('==================================\n');
 
     const handler = new ConversationHandler();
 
     const testQueries = [
-        "Hi ECARX, how are you?",
+        "Hi CarBot, how are you?",
         "What's the weather like?",
         "Can you help with navigation?",
-        "Hi ECARX, what is the newest Twitter of Elon Musk now?",
+        "Hi CarBot, what is the newest Twitter of Elon Musk now?",
         "What's Trump's latest tweet?",
         "Tell me about Twitter updates",
         "What can you do?"
@@ -26,7 +26,7 @@ async function testWithRetry() {
         
         try {
             const result = await handler.processMessage(query);
-            console.log(`🤖 ECARX: "${result.response}"`);
+            console.log(`🤖 CarBot: "${result.response}"`);
             console.log(`🔍 Intent: ${result.intent}`);
             
             if (result.actions && result.actions.length > 0) {
@@ -57,10 +57,10 @@ async function testWithRetry() {
     // Retry Twitter specifically
     console.log('🔄 Retrying Twitter functionality...');
     try {
-        const result = await handler.processMessage("Hi ECARX, what is the newest Twitter of Elon Musk now?");
+        const result = await handler.processMessage("Hi CarBot, what is the newest Twitter of Elon Musk now?");
         if (result.intent === 'twitter') {
             console.log('🎉 SUCCESS! Twitter is now working!');
-            console.log(`🤖 ECARX: "${result.response}"`);
+            console.log(`🤖 CarBot: "${result.response}"`);
         } else {
             console.log('⏳ Still rate limited, need to wait longer');
         }

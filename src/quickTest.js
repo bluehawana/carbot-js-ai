@@ -16,11 +16,11 @@ async function testGroqAPI() {
             messages: [
                 {
                     role: 'system',
-                    content: 'You are ECARX, a helpful car assistant. Keep responses short and car-focused.'
+                    content: 'You are CarBot, a helpful car assistant. Keep responses short and car-focused.'
                 },
                 {
                     role: 'user',
-                    content: 'Hi ECARX, navigate to the nearest gas station'
+                    content: 'Hi CarBot, navigate to the nearest gas station'
                 }
             ],
             max_tokens: 100,
@@ -34,14 +34,14 @@ async function testGroqAPI() {
         
         console.log('✅ Groq API Test SUCCESS!');
         console.log('');
-        console.log('🤖 ECARX Response:');
+        console.log('🤖 CarBot Response:');
         console.log(`"${response.data.choices[0].message.content}"`);
         console.log('');
         console.log('📊 Usage:');
         console.log(`Tokens used: ${response.data.usage.total_tokens}`);
         console.log(`Model: ${response.data.model}`);
         console.log('');
-        console.log('🚗 ECARX Bot is ready to run with Groq!');
+        console.log('🚗 CarBot is ready to run with Groq!');
         
     } catch (error) {
         console.log('❌ Groq API Test FAILED:');
@@ -60,7 +60,7 @@ async function testCarConversation() {
     console.log('================================');
     
     const conversations = [
-        'Hi ECARX, navigate to home',
+        'Hi CarBot, navigate to home',
         'Play some music',
         'What is my fuel level?',
         'Call mom',
@@ -76,7 +76,7 @@ async function testCarConversation() {
                 messages: [
                     {
                         role: 'system',
-                        content: 'You are ECARX, a car assistant. Respond briefly and helpfully to car-related requests. Keep responses under 20 words.'
+                        content: 'You are CarBot, a car assistant. Respond briefly and helpfully to car-related requests. Keep responses under 20 words.'
                     },
                     {
                         role: 'user',
@@ -92,10 +92,10 @@ async function testCarConversation() {
                 }
             });
             
-            console.log(`ECARX: "${response.data.choices[0].message.content.trim()}"`);
+            console.log(`CarBot: "${response.data.choices[0].message.content.trim()}"`);
             
         } catch (error) {
-            console.log(`ECARX: "I can help with ${message.toLowerCase()}. Let me assist you with that."`);
+            console.log(`CarBot: "I can help with ${message.toLowerCase()}. Let me assist you with that."`);
         }
     }
 }
@@ -108,8 +108,8 @@ async function runTests() {
     console.log('\n🎯 Next Steps:');
     console.log('==============');
     console.log('1. API key is working! ✅');
-    console.log('2. Run the full ECARX Bot: npm run test:local');
-    console.log('3. Try saying: "Hi ECARX, navigate to the nearest restaurant"');
+    console.log('2. Run the full CarBot: npm run test:local');
+    console.log('3. Try saying: "Hi CarBot, navigate to the nearest restaurant"');
     console.log('4. Type "help" for available commands');
     console.log('');
 }

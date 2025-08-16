@@ -6,7 +6,7 @@ const readline = require('readline');
 
 class SimpleTextBot {
     constructor() {
-        console.log('🚗 Initializing ECARX Text Bot...');
+        console.log('🚗 Initializing CarBot Text Bot...');
         
         // Check if we have the minimum required API key
         if (!process.env.GROQ_API_KEY && !process.env.OPENAI_API_KEY) {
@@ -23,13 +23,13 @@ class SimpleTextBot {
             output: process.stdout
         });
 
-        console.log('✅ ECARX Text Bot initialized!');
+        console.log('✅ CarBot Text Bot initialized!');
         console.log('📱 AI Provider:', process.env.AI_PROVIDER || 'groq');
         console.log('🐦 Twitter:', process.env.TWITTER_BEARER_TOKEN ? 'Enabled' : 'Disabled');
         console.log('\n💡 Try saying:');
-        console.log('   - "Hi ECARX, what is the newest Twitter of Elon Musk now?"');
+        console.log('   - "Hi CarBot, what is the newest Twitter of Elon Musk now?"');
         console.log('   - "What\'s Trump\'s latest tweet?"');
-        console.log('   - "Hello ECARX, how are you?"');
+        console.log('   - "Hello CarBot, how are you?"');
         console.log('   - Type "quit" to exit\n');
     }
 
@@ -51,7 +51,7 @@ class SimpleTextBot {
                     console.log('💭 Processing...');
                     const result = await this.conversationHandler.processMessage(input);
                     
-                    console.log(`🤖 ECARX: ${result.response}`);
+                    console.log(`🤖 CarBot: ${result.response}`);
                     console.log(`🔍 Intent: ${result.intent}`);
                     
                     if (result.actions && result.actions.length > 0) {
@@ -75,7 +75,7 @@ class SimpleTextBot {
         console.log('\n🧪 Testing Twitter functionality...\n');
         
         const testQueries = [
-            "Hi ECARX, what is the newest Twitter of Elon Musk now?",
+            "Hi CarBot, what is the newest Twitter of Elon Musk now?",
             "What's Trump's latest tweet?"
         ];
 
@@ -83,7 +83,7 @@ class SimpleTextBot {
             console.log(`🎤 Testing: "${query}"`);
             try {
                 const result = await this.conversationHandler.processMessage(query);
-                console.log(`🤖 ECARX: ${result.response}`);
+                console.log(`🤖 CarBot: ${result.response}`);
                 console.log(`🔍 Intent: ${result.intent}\n`);
                 
                 // Wait between requests

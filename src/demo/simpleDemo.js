@@ -3,7 +3,7 @@
 require('dotenv').config();
 const AIProvider = require('../ai/aiProvider');
 
-console.log('🚗 ECARX Bot - AI Provider Integration Demo');
+console.log('🚗 CarBot - AI Provider Integration Demo');
 console.log('==========================================');
 console.log('');
 
@@ -12,7 +12,7 @@ const providers = AIProvider.getAvailableProviders();
 
 console.log('📋 Available AI Providers:');
 console.log('');
-console.log('🌟 RECOMMENDED (Best for ECARX Bot):');
+console.log('🌟 RECOMMENDED (Best for CarBot):');
 providers
     .filter(p => p.recommended)
     .forEach((provider, index) => {
@@ -56,7 +56,7 @@ console.log('   ANTHROPIC_API_KEY=sk-ant-...');
 console.log('   GROK_API_KEY=xai-...');
 console.log('   GROQ_API_KEY=gsk_...');
 console.log('');
-console.log('4. Start ECARX Bot:');
+console.log('4. Start CarBot:');
 console.log('   npm start');
 console.log('');
 
@@ -71,7 +71,7 @@ async function testFallback() {
     const testMessages = [
         {
             role: 'system',
-            content: 'You are ECARX, a car assistant.'
+            content: 'You are CarBot, a car assistant.'
         },
         {
             role: 'user',
@@ -85,10 +85,10 @@ async function testFallback() {
         
         const response = await ai.generateResponse(testMessages);
         
-        console.log(`🤖 ECARX: "${response.content}"`);
+        console.log(`🤖 CarBot: "${response.content}"`);
         console.log(`📡 Provider: ${response.provider}`);
         console.log('');
-        console.log('✅ Fallback system working! ECARX Bot will respond even without API keys.');
+        console.log('✅ Fallback system working! CarBot will respond even without API keys.');
         
     } catch (error) {
         console.log('❌ Error:', error.message);
@@ -103,7 +103,7 @@ console.log('==============');
 console.log('1. Get a free API key from Claude or Groq');
 console.log('2. Configure your .env file');
 console.log('3. Run: npm start');
-console.log('4. Say "Hi ECARX" to activate voice assistant');
+console.log('4. Say "Hi CarBot" to activate voice assistant');
 console.log('');
 console.log('🚗 Ready to install in your car with Google Auto!');
 console.log('');

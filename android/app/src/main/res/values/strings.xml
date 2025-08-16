@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AI CarBot</string>
+    <string name="car_app_name">AI CarBot</string>
+    <string name="service_name">AI CarBot Service</string>
+    
+    <!-- Main Screen Strings -->
+    <string name="main_title">AI CarBot</string>
+    <string name="voice_commands_title">Voice Commands</string>
+    <string name="voice_commands_subtitle">Say "Hi CarBot" to start</string>
+    <string name="navigation_title">Navigation</string>
+    <string name="navigation_subtitle">Get directions and traffic info</string>
+    <string name="music_title">Music</string>
+    <string name="music_subtitle">Control music playback</string>
+    <string name="phone_title">Phone</string>
+    <string name="phone_subtitle">Make calls and send messages</string>
+    <string name="settings_title">Settings</string>
+    <string name="settings_subtitle">Configure AI CarBot preferences</string>
+    
+    <!-- Voice Screen Strings -->
+    <string name="voice_listening">Listening... Say your command</string>
+    <string name="voice_ready">Say "Hi CarBot" or tap to start voice command...</string>
+    <string name="voice_processing">Processing your request...</string>
+    <string name="voice_error">Could not process command. Check connection.</string>
+    <string name="voice_assistant">🎤 Voice Assistant</string>
+    <string name="voice_assistant_subtitle">Tap here or press mic button to start</string>
+    <string name="voice_activation_methods">Voice: "Hi CarBot" • Touch: Tap button • Physical: Hold steering wheel mic</string>
+    <string name="voice_connecting">Connecting to CarBot...</string>
+    <string name="voice_ready_enhanced">Ready to listen! Try: "What's the weather?" or "Navigate home"</string>
+    <string name="voice_listening_enhanced">🎙️ Listening... Speak clearly</string>
+    
+    <!-- Navigation Strings -->
+    <string name="nav_home">Navigate Home</string>
+    <string name="nav_work">Navigate to Work</string>
+    <string name="nav_starting">Starting navigation to %1$s...</string>
+    <string name="nav_failed">Navigation failed: %1$s</string>
+    
+    <!-- Music Strings -->
+    <string name="music_play">Play</string>
+    <string name="music_pause">Pause</string>
+    <string name="music_next">Next</string>
+    <string name="music_control">Music Control</string>
+    
+    <!-- Phone Strings -->
+    <string name="phone_call_home">Call Home</string>
+    <string name="phone_emergency">Emergency</string>
+    <string name="phone_calling">Calling %1$s...</string>
+    
+    <!-- General -->
+    <string name="back">Back</string>
+    <string name="help">Help</string>
+    <string name="voice">Voice</string>
+</resources>

@@ -32,6 +32,11 @@ class AIProvider {
                 return 'ollama';
             case 'huggingface':
                 return process.env.HUGGINGFACE_API_KEY;
+            case 'google':
+            case 'gemini':
+                return process.env.GOOGLE_AI_API_KEY;
+            case 'qwen':
+                return process.env.QWEN_API_KEY || process.env.DASHSCOPE_API_KEY;
             default:
                 return process.env.OPENAI_API_KEY;
         }
@@ -59,6 +64,11 @@ class AIProvider {
                 return 'http://localhost:11434/v1';
             case 'huggingface':
                 return 'https://api-inference.huggingface.co/models';
+            case 'google':
+            case 'gemini':
+                return 'https://generativelanguage.googleapis.com/v1beta';
+            case 'qwen':
+                return 'https://dashscope.aliyuncs.com/api/v1';
             default:
                 return 'https://api.openai.com/v1';
         }
@@ -86,6 +96,11 @@ class AIProvider {
                 return 'llama3';
             case 'huggingface':
                 return 'microsoft/DialoGPT-medium';
+            case 'google':
+            case 'gemini':
+                return 'gemini-1.5-flash';
+            case 'qwen':
+                return 'qwen-turbo';
             default:
                 return 'gpt-3.5-turbo';
         }
@@ -180,6 +195,50 @@ class AIProvider {
             };
             // Remove system message from messages array for Claude
             data.messages = requestOptions.messages.filter(m => m.role !== 'system');
+        } else if (this.provider === 'google' || this.provider === 'gemini') {
+            // Google AI (Gemini) API format
+            url = `${this.baseURL}/models/${requestOptions.model}:generateContent`;
+            const contents = [];
+            let systemInstruction = '';
+            
+            for (const msg of requestOptions.messages) {
+                if (msg.role === 'system') {
+                    systemInstruction = msg.content;
+                } else {
+                    contents.push({
+                        role: msg.role === 'assistant' ? 'model' : 'user',
+                        parts: [{ text: msg.content }]
+                    });
+                }
+            }
+            
+            data = {
+                contents: contents,
+                generationConfig: {
+                    temperature: requestOptions.temperature || 0.7,
+                    maxOutputTokens: requestOptions.max_tokens || 150,
+                    topP: requestOptions.top_p || 1.0
+                }
+            };
+            
+            if (systemInstruction) {
+                data.systemInstruction = { parts: [{ text: systemInstruction }] };
+            }
+        } else if (this.provider === 'qwen') {
+            // Qwen/DashScope API format
+            url = `${this.baseURL}/services/aigc/text-generation/generation`;
+            data = {
+                model: requestOptions.model,
+                input: {
+                    messages: requestOptions.messages
+                },
+                parameters: {
+                    result_format: 'message',
+                    max_tokens: requestOptions.max_tokens || 150,
+                    temperature: requestOptions.temperature || 0.7,
+                    top_p: requestOptions.top_p || 1.0
+                }
+            };
         } else {
             // Standard OpenAI-compatible format
             url = `${this.baseURL}/chat/completions`;
@@ -206,6 +265,33 @@ class AIProvider {
                 }],
                 usage: response.data.usage
             };
+        } else if (this.provider === 'google' || this.provider === 'gemini') {
+            // Google AI response format
+            const candidate = response.data.candidates?.[0];
+            if (candidate && candidate.content && candidate.content.parts) {
+                return {
+                    choices: [{
+                        message: {
+                            content: candidate.content.parts[0].text
+                        }
+                    }],
+                    usage: response.data.usageMetadata || {}
+                };
+            }
+            throw new Error('Invalid Google AI response format');
+        } else if (this.provider === 'qwen') {
+            // Qwen response format
+            if (response.data.output && response.data.output.choices) {
+                return {
+                    choices: [{
+                        message: {
+                            content: response.data.output.choices[0].message.content
+                        }
+                    }],
+                    usage: response.data.usage || {}
+                };
+            }
+            throw new Error('Invalid Qwen response format');
         }
         
         return response.data;
@@ -233,10 +319,18 @@ class AIProvider {
                 break;
             case 'cohere':
                 headers['Authorization'] = `Bearer ${this.apiKey}`;
-                headers['X-Client-Name'] = 'ecarx-bot';
+                headers['X-Client-Name'] = 'carbot';
                 break;
             case 'huggingface':
                 headers['Authorization'] = `Bearer ${this.apiKey}`;
+                break;
+            case 'google':
+            case 'gemini':
+                headers['Authorization'] = `Bearer ${this.apiKey}`;
+                break;
+            case 'qwen':
+                headers['Authorization'] = `Bearer ${this.apiKey}`;
+                headers['Content-Type'] = 'application/json';
                 break;
             default:
                 headers['Authorization'] = `Bearer ${this.apiKey}`;
@@ -303,7 +397,7 @@ class AIProvider {
             return "Emergency assistance activated. How can I help you?";
         }
         
-        return "I'm ECARX, your car assistant. I can help with navigation, music, calls, and more.";
+        return "I'm CarBot, your car assistant. I can help with navigation, music, calls, and more.";
     }
 
     async delay(ms) {
@@ -416,6 +510,24 @@ class AIProvider {
                 url: 'https://api-inference.huggingface.co',
                 free: true,
                 recommended: false
+            },
+            {
+                name: 'google',
+                displayName: 'Google AI (Gemini)',
+                description: 'Google\'s latest Gemini models with excellent real-time capabilities',
+                requiresKey: true,
+                url: 'https://generativelanguage.googleapis.com',
+                free: true,
+                recommended: true
+            },
+            {
+                name: 'qwen',
+                displayName: 'Qwen (Alibaba Cloud)',
+                description: 'Alibaba\'s powerful multilingual AI model',
+                requiresKey: true,
+                url: 'https://dashscope.aliyuncs.com',
+                free: true,
+                recommended: true
             }
         ];
     }

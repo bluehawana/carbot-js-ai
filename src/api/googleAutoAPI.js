@@ -1,4 +1,6 @@
 const express = require('express');
+const { Server } = require("socket.io");
+const http = require('http');
 const cors = require('cors');
 const helmet = require('helmet');
 const WakeWordDetector = require('../wakeword/detector');
@@ -7,14 +9,33 @@ const SpeechRecognition = require('../audio/speechRecognition');
 const TextToSpeech = require('../audio/textToSpeech');
 const ConversationHandler = require('../chatbot/conversationHandler');
 const IntentRecognition = require('../chatbot/intentRecognition');
+const WhisperSTTService = require('../services/whisperSTTService');
 
 class GoogleAutoAPI {
     constructor(options = {}) {
         this.app = express();
         this.port = options.port || process.env.PORT || 3000;
+        this.server = http.createServer(this.app);
+        this.io = new Server(this.server, {
+            cors: {
+                origin: ["http://localhost:3000", "https://your-car-app.com"],
+                credentials: true
+            }
+        });
         this.setupMiddleware();
         this.setupRoutes();
         this.initializeServices();
+        this.setupSocketIO();
+    }
+
+    setupSocketIO() {
+        this.io.on('connection', (socket) => {
+            console.log('A user connected to socket.io');
+
+            socket.on('disconnect', () => {
+                console.log('User disconnected from socket.io');
+            });
+        });
     }
 
     setupMiddleware() {
@@ -46,6 +67,10 @@ class GoogleAutoAPI {
 
             this.speechRecognition = new SpeechRecognition();
             this.textToSpeech = new TextToSpeech();
+            
+            // Initialize local Whisper STT service
+            this.localSTT = new WhisperSTTService();
+            this.useLocalSTT = process.env.USE_WHISPER_STT === 'true';
 
             // Initialize conversation handler
             this.conversationHandler = new ConversationHandler({
@@ -66,6 +91,32 @@ class GoogleAutoAPI {
             }
 
             this.wakeWordDetector.startListening();
+
+            // Initialize local STT service if enabled
+            if (this.useLocalSTT) {
+                try {
+                    console.log('🎤 Initializing local Whisper STT service...');
+                    await this.localSTT.initialize();
+                    console.log('✅ Local STT service ready');
+                } catch (error) {
+                    console.error('❌ Failed to initialize local STT:', error.message);
+                    console.log('🔄 Falling back to cloud STT');
+                    this.useLocalSTT = false;
+                }
+            }
+
+            // Set up wake word status monitoring
+            if (this.wakeWordDetector && this.wakeWordDetector.onStatusChange) {
+                this.wakeWordDetector.onStatusChange((statusData) => {
+                    this.currentStatus = statusData.status;
+                    console.log(`🎯 Wake word status: ${statusData.visual.text}`);
+                    
+                    // Broadcast to connected clients
+                    if (this.io) {
+                        this.io.emit('wake_word_status', statusData);
+                    }
+                });
+            }
 
             console.log('All services initialized successfully');
         } catch (error) {
@@ -111,6 +162,19 @@ class GoogleAutoAPI {
         // Health check
         this.app.get('/health', (req, res) => {
             res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+        });
+
+        // Status endpoint for visual feedback
+        this.app.get('/api/status', (req, res) => {
+            const status = this.wakeWordDetector ? {
+                listening: this.wakeWordDetector.isListening,
+                status: this.currentStatus || 'listening',
+                visual: this.wakeWordDetector.getVisualStatus ? 
+                       this.wakeWordDetector.getVisualStatus(this.currentStatus || 'listening') : 
+                       { color: '#4285f4', animation: 'pulse', text: '🎤 Listening...' }
+            } : { listening: false, status: 'offline' };
+            
+            res.json(status);
         });
 
         // Wake word endpoint
@@ -223,10 +287,20 @@ class GoogleAutoAPI {
         // Android Auto integration endpoints
         this.app.post('/api/voice', async (req, res) => {
             try {
-                const { command, type } = req.body;
-                console.log('Voice command received from Android:', command);
+                const { command, type, audioData } = req.body;
+                console.log('Voice command received from Android:', command || 'audio data');
                 
-                const result = await this.processTextInput(command);
+                let result;
+                if (audioData && this.useLocalSTT) {
+                    // Process audio with local STT
+                    result = await this.processVoiceInput(audioData);
+                } else if (command) {
+                    // Process text command
+                    result = await this.processTextInput(command);
+                } else {
+                    throw new Error('No command or audio data provided');
+                }
+                
                 res.json({
                     success: true,
                     response: result.text || 'Command processed',
@@ -343,13 +417,24 @@ class GoogleAutoAPI {
 
     async processVoiceInput(audioData, carContext = null) {
         try {
-            // Convert audio to text
-            const speechResult = await this.speechRecognition.recognizeAudio(audioData);
+            let speechResult;
             
-            if (!speechResult) {
-                return { error: 'Could not understand audio' };
+            if (this.useLocalSTT && this.localSTT) {
+                console.log('🎤 Using local Whisper STT...');
+                // Convert audio to text using local Whisper model
+                speechResult = await this.localSTT.processVoiceCommand(audioData);
+                console.log('🎯 Local STT result:', speechResult);
+            } else {
+                console.log('🎤 Using cloud STT...');
+                // Fallback to cloud STT
+                speechResult = await this.speechRecognition.recognizeAudio(audioData);
+            }
+            
+            if (!speechResult || !speechResult.success || !speechResult.text) {
+                return { error: 'Could not understand audio', sttResult: speechResult };
             }
 
+            console.log(`📝 Transcribed: "${speechResult.text}" (confidence: ${speechResult.confidence})`);
             return await this.processTextInput(speechResult.text, carContext);
         } catch (error) {
             console.error('Voice input processing error:', error);
@@ -441,8 +526,8 @@ class GoogleAutoAPI {
     }
 
     start() {
-        this.app.listen(this.port, () => {
-            console.log(`ECARX Bot API server running on port ${this.port}`);
+        this.server.listen(this.port, () => {
+            console.log(`CarBot API server running on port ${this.port}`);
         });
     }
 
@@ -450,7 +535,7 @@ class GoogleAutoAPI {
         if (this.wakeWordDetector) {
             this.wakeWordDetector.destroy();
         }
-        console.log('ECARX Bot API server stopped');
+        console.log('CarBot API server stopped');
     }
 }
 

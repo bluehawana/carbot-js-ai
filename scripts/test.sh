@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# ECARX Bot Test Script
+# CarBot Test Script
 
 set -e
 
-echo "🧪 ECARX Bot Test Suite"
+echo "🧪 CarBot Test Suite"
 echo "======================="
 
 # Check if Node.js is available
@@ -33,7 +33,7 @@ echo "🚀 Running tests..."
 # Test 1: Basic functionality
 echo "Test 1: Basic functionality"
 node -e "
-const EcarxBot = require('./src/index');
+const CarBot = require('./src/index');
 console.log('✅ Basic import test passed');
 "
 
@@ -109,7 +109,7 @@ console.log('✅ API endpoints test passed');
 # Test 10: Integration test
 echo "Test 10: Integration test"
 timeout 5s node -e "
-const EcarxBot = require('./src/index');
+const CarBot = require('./src/index');
 console.log('✅ Integration test passed');
 process.exit(0);
 " || echo "✅ Integration test completed (timeout expected)"
@@ -129,4 +129,4 @@ echo "✅ Car features: PASSED"
 echo "✅ API endpoints: PASSED"
 echo "✅ Integration: PASSED"
 echo ""
-echo "🚀 ECARX Bot is ready for deployment!"
+echo "🚀 CarBot is ready for deployment!"

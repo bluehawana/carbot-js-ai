@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary">@color/carbot_primary</item>
+        <item name="colorPrimaryDark">@color/carbot_primary_dark</item>
+        <item name="colorAccent">@color/carbot_accent</item>
+    </style>
+
+    <!-- Car App Theme -->
+    <style name="CarAppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/car_primary</item>
+        <item name="colorPrimaryDark">@color/car_primary_dark</item>
+        <item name="colorAccent">@color/car_accent</item>
+    </style>
+</resources>
