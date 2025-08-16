@@ -156,6 +156,30 @@ class GoogleAutoAPI {
         this.app.get('/health', (req, res) => {
             res.json({ status: 'healthy', timestamp: new Date().toISOString() });
         });
+        
+        // Manual wake word trigger for testing/fallback mode
+        this.app.post('/api/wake-word', (req, res) => {
+            try {
+                if (this.carSystem && this.carSystem.triggerWakeWord) {
+                    const success = this.carSystem.triggerWakeWord('api');
+                    res.json({ 
+                        success: true, 
+                        message: 'Wake word triggered successfully',
+                        timestamp: new Date().toISOString()
+                    });
+                } else {
+                    res.status(500).json({ 
+                        success: false, 
+                        error: 'Car system not available' 
+                    });
+                }
+            } catch (error) {
+                res.status(500).json({ 
+                    success: false, 
+                    error: error.message 
+                });
+            }
+        });
     }
 
     start() {

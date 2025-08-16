@@ -678,6 +678,12 @@ class CarSystemIntegration extends EventEmitter {
         this.emit('systemConfigured', config);
     }
     
+    // Manual wake word trigger for testing and fallback mode
+    triggerWakeWord(source = 'api') {
+        console.log(`🎯 Wake word triggered externally (${source})`);
+        return this.services.wakeWordDetector.triggerWakeWord(source);
+    }
+    
     destroy() {
         // Stop all services
         Object.values(this.services).forEach(service => {
