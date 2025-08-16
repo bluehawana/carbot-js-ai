@@ -1,32 +1,46 @@
+console.log(`
++++++++++++++++++++++++++++++++++++++++++
++                                       +
++      LOADING TEXT TO SPEECH MODULE      +
++                                       +
++++++++++++++++++++++++++++++++++++++++++
+`);
+
 const textToSpeech = require('@google-cloud/text-to-speech');
 const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
 
-class TextToSpeech {
+class TextToSpeechService {
     constructor(options = {}) {
-        this.client = new textToSpeech.TextToSpeechClient({
-            keyFilename: options.keyFilename || process.env.GOOGLE_CLOUD_KEY_FILE,
-            projectId: options.projectId || process.env.GOOGLE_CLOUD_PROJECT_ID
-        });
-        
-        this.voice = {
-            languageCode: 'en-US',
-            name: 'en-US-Neural2-D', // Male voice
-            ssmlGender: 'MALE',
-            ...options.voice
-        };
-        
-        this.audioConfig = {
-            audioEncoding: 'MP3',
-            speakingRate: 1.0,
-            pitch: 0.0,
-            volumeGainDb: 0.0,
-            ...options.audioConfig
-        };
-        
-        this.outputDir = options.outputDir || path.join(__dirname, '../../audio-output');
-        this.ensureOutputDir();
+        console.log('[TextToSpeechService CONSTRUCTOR] Creating new instance...');
+        try {
+            this.client = new textToSpeech.TextToSpeechClient({
+                keyFilename: options.keyFilename || process.env.GOOGLE_CLOUD_KEY_FILE,
+                projectId: options.projectId || process.env.GOOGLE_CLOUD_PROJECT_ID
+            });
+            
+            this.voice = {
+                languageCode: 'en-US',
+                name: 'en-US-Neural2-D', // Male voice
+                ssmlGender: 'MALE',
+                ...options.voice
+            };
+            
+            this.audioConfig = {
+                audioEncoding: 'MP3',
+                speakingRate: 1.0,
+                pitch: 0.0,
+                volumeGainDb: 0.0,
+                ...options.audioConfig
+            };
+            
+            this.outputDir = options.outputDir || path.join(__dirname, '../../audio-output');
+            this.ensureOutputDir();
+            console.log('[TextToSpeechService CONSTRUCTOR] Instance created successfully.');
+        } catch (error) {
+            console.error('[TextToSpeechService CONSTRUCTOR] FATAL ERROR:', error);
+        }
     }
 
     ensureOutputDir() {
@@ -203,4 +217,4 @@ class TextToSpeech {
     }
 }
 
-module.exports = TextToSpeech;
+module.exports = TextToSpeechService;

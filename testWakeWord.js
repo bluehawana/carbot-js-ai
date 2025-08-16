@@ -1,13 +1,20 @@
 const WakeWordDetector = require('./src/wakeword/detector');
 
 async function runTest() {
-    console.log('Starting Wake Word Detector Test (Fallback Mode)...');
+    console.log('Starting Wake Word Detector Test...');
 
-    // Initialize without an access key to force fallback mode
-    const detector = new WakeWordDetector(null); 
+    const accessKey = process.env.PICOVOICE_ACCESS_KEY;
+
+    if (!accessKey) {
+        console.error('PICOVOICE_ACCESS_KEY environment variable not set.');
+        console.error('Please run the test with: PICOVOICE_ACCESS_KEY=your_key_here node testWakeWord.js');
+        return;
+    }
+
+    const detector = new WakeWordDetector(accessKey); 
 
     detector.onWakeWord(() => {
-        console.log('>>> Wake word detected! (Simulated)');
+        console.log('>>> Wake word "Hello My Car" detected!');
         // In a real scenario, you'd trigger your main application logic here
     });
 

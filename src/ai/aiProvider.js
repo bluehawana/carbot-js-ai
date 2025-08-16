@@ -2,12 +2,14 @@ const axios = require('axios');
 
 class AIProvider {
     constructor(options = {}) {
-        this.provider = options.provider || process.env.AI_PROVIDER || 'openai';
-        this.apiKey = options.apiKey || this.getApiKey();
+        this.provider = 'groq'; // Forcing groq to prevent fallback issues
+        this.apiKey = this.getApiKey();
         this.baseURL = this.getBaseURL();
         this.model = this.getModel();
         this.maxRetries = options.maxRetries || 2;
-        this.timeout = options.timeout || 15000;
+        this.timeout = options.timeout || 15000; // 15 seconds
+        this.availableFunctions = new Map();
+        this.registerDefaultFunctions();
     }
 
     getApiKey() {
@@ -107,9 +109,24 @@ class AIProvider {
     }
 
     async generateResponse(messages, options = {}) {
-        // For now, just use Groq for everything to avoid complexity
-        // Smart routing can be enabled later with proper API keys
-        return await this.generateResponseWithProvider(messages, options);
+        // Enhanced with function calling and intelligent routing
+        const lastMessage = messages[messages.length - 1];
+        const intent = await this.analyzeIntent(lastMessage.content);
+        
+        // Prepare function calling if needed
+        if (intent.requiresFunction && this.supportsFunctionCalling()) {
+            options.functions = this.getFunctionsForIntent(intent);
+            options.function_call = 'auto';
+        }
+        
+        const response = await this.generateResponseWithProvider(messages, options);
+        
+        // Handle function calls
+        if (response.function_call) {
+            return await this.handleFunctionCall(response, messages, options);
+        }
+        
+        return response;
     }
 
     needsRealTimeData(messages) {
@@ -134,6 +151,14 @@ class AIProvider {
             temperature: options.temperature || 0.7
         };
 
+        // Add function calling support for compatible providers
+        if (options.functions && this.supportsFunctionCalling()) {
+            requestOptions.functions = options.functions;
+            if (options.function_call) {
+                requestOptions.function_call = options.function_call;
+            }
+        }
+        
         // Only add supported parameters for Groq
         if (this.provider === 'groq') {
             if (options.topP) requestOptions.top_p = options.topP;
@@ -153,14 +178,24 @@ class AIProvider {
                 const response = await this.makeRequest(requestOptions);
                 
                 if (response && response.choices && response.choices.length > 0) {
-                    const content = response.choices[0].message.content;
+                    const choice = response.choices[0];
+                    const content = choice.message.content;
+                    const functionCall = choice.message.function_call;
+                    
                     console.log(`✅ Response generated successfully with ${this.provider}`);
-                    return {
+                    
+                    const result = {
                         content: content,
                         provider: this.provider,
                         model: this.model,
                         usage: response.usage
                     };
+                    
+                    if (functionCall) {
+                        result.function_call = functionCall;
+                    }
+                    
+                    return result;
                 }
                 
                 throw new Error('No valid response received');
@@ -398,6 +433,309 @@ class AIProvider {
         }
         
         return "I'm CarBot, your car assistant. I can help with navigation, music, calls, and more.";
+    }
+    
+    // Function calling implementation
+    registerFunction(name, description, parameters, handler) {
+        this.availableFunctions.set(name, {
+            name,
+            description,
+            parameters,
+            handler
+        });
+    }
+    
+    registerDefaultFunctions() {
+        // Navigation function
+        this.registerFunction('navigate_to_destination', 
+            'Navigate to a specific destination using GPS',
+            {
+                type: 'object',
+                properties: {
+                    destination: {
+                        type: 'string',
+                        description: 'The destination address or location name'
+                    },
+                    route_preference: {
+                        type: 'string',
+                        enum: ['fastest', 'shortest', 'eco'],
+                        description: 'Preferred route type'
+                    }
+                },
+                required: ['destination']
+            },
+            async (params) => {
+                return {
+                    success: true,
+                    message: `Navigation started to ${params.destination}`,
+                    eta: '15 minutes',
+                    distance: '8.2 km'
+                };
+            }
+        );
+        
+        // Music control function
+        this.registerFunction('control_music',
+            'Control music playback (play, pause, skip, search)',
+            {
+                type: 'object',
+                properties: {
+                    action: {
+                        type: 'string',
+                        enum: ['play', 'pause', 'skip', 'previous', 'search'],
+                        description: 'Music control action'
+                    },
+                    query: {
+                        type: 'string',
+                        description: 'Song, artist, or album to search for (required for search action)'
+                    },
+                    volume: {
+                        type: 'number',
+                        minimum: 0,
+                        maximum: 100,
+                        description: 'Volume level (0-100)'
+                    }
+                },
+                required: ['action']
+            },
+            async (params) => {
+                switch (params.action) {
+                    case 'search':
+                        return {
+                            success: true,
+                            message: `Playing "${params.query}"`,
+                            current_song: params.query
+                        };
+                    default:
+                        return {
+                            success: true,
+                            message: `Music ${params.action} executed`,
+                            action: params.action
+                        };
+                }
+            }
+        );
+        
+        // Phone call function
+        this.registerFunction('make_phone_call',
+            'Make a phone call to a contact or number',
+            {
+                type: 'object',
+                properties: {
+                    contact: {
+                        type: 'string',
+                        description: 'Contact name or phone number'
+                    },
+                    call_type: {
+                        type: 'string',
+                        enum: ['voice', 'video'],
+                        description: 'Type of call to make'
+                    }
+                },
+                required: ['contact']
+            },
+            async (params) => {
+                return {
+                    success: true,
+                    message: `Calling ${params.contact}`,
+                    call_type: params.call_type || 'voice'
+                };
+            }
+        );
+        
+        // Weather function
+        this.registerFunction('get_weather',
+            'Get current weather information for a location',
+            {
+                type: 'object',
+                properties: {
+                    location: {
+                        type: 'string',
+                        description: 'City or location for weather information'
+                    },
+                    include_forecast: {
+                        type: 'boolean',
+                        description: 'Include extended forecast'
+                    }
+                },
+                required: ['location']
+            },
+            async (params) => {
+                return {
+                    success: true,
+                    location: params.location,
+                    temperature: '22°C',
+                    condition: 'Partly cloudy',
+                    humidity: '65%',
+                    forecast: params.include_forecast ? ['Tomorrow: 24°C Sunny', 'Friday: 19°C Rainy'] : undefined
+                };
+            }
+        );
+        
+        // Climate control function
+        this.registerFunction('control_climate',
+            'Control car climate settings (temperature, AC, heating)',
+            {
+                type: 'object',
+                properties: {
+                    temperature: {
+                        type: 'number',
+                        minimum: 16,
+                        maximum: 30,
+                        description: 'Desired temperature in Celsius'
+                    },
+                    mode: {
+                        type: 'string',
+                        enum: ['auto', 'heat', 'cool', 'fan'],
+                        description: 'Climate control mode'
+                    },
+                    fan_speed: {
+                        type: 'integer',
+                        minimum: 1,
+                        maximum: 5,
+                        description: 'Fan speed level (1-5)'
+                    }
+                }
+            },
+            async (params) => {
+                return {
+                    success: true,
+                    message: `Climate set to ${params.temperature}°C in ${params.mode} mode`,
+                    temperature: params.temperature,
+                    mode: params.mode
+                };
+            }
+        );
+    }
+    
+    async analyzeIntent(text) {
+        const lowercaseText = text.toLowerCase();
+        
+        // Intent analysis using keywords and patterns
+        const intents = {
+            navigation: {
+                keywords: ['navigate', 'directions', 'route', 'go to', 'drive to', 'take me to'],
+                functions: ['navigate_to_destination'],
+                requiresFunction: true
+            },
+            music: {
+                keywords: ['play', 'music', 'song', 'album', 'artist', 'spotify', 'pause', 'skip'],
+                functions: ['control_music'],
+                requiresFunction: true
+            },
+            phone: {
+                keywords: ['call', 'phone', 'dial', 'contact'],
+                functions: ['make_phone_call'],
+                requiresFunction: true
+            },
+            weather: {
+                keywords: ['weather', 'temperature', 'forecast', 'rain', 'sunny'],
+                functions: ['get_weather'],
+                requiresFunction: true
+            },
+            climate: {
+                keywords: ['temperature', 'ac', 'heat', 'cool', 'climate', 'air conditioning'],
+                functions: ['control_climate'],
+                requiresFunction: true
+            },
+            general: {
+                keywords: [],
+                functions: [],
+                requiresFunction: false
+            }
+        };
+        
+        for (const [intentName, intent] of Object.entries(intents)) {
+            if (intent.keywords.some(keyword => lowercaseText.includes(keyword))) {
+                return {
+                    name: intentName,
+                    confidence: 0.8,
+                    requiresFunction: intent.requiresFunction,
+                    functions: intent.functions
+                };
+            }
+        }
+        
+        return {
+            name: 'general',
+            confidence: 0.5,
+            requiresFunction: false,
+            functions: []
+        };
+    }
+    
+    supportsFunctionCalling() {
+        return ['openai', 'chatgpt', 'grok'].includes(this.provider);
+    }
+    
+    getFunctionsForIntent(intent) {
+        const functions = [];
+        
+        for (const functionName of intent.functions) {
+            const func = this.availableFunctions.get(functionName);
+            if (func) {
+                functions.push({
+                    name: func.name,
+                    description: func.description,
+                    parameters: func.parameters
+                });
+            }
+        }
+        
+        return functions;
+    }
+    
+    async handleFunctionCall(response, messages, options) {
+        const functionCall = response.function_call;
+        const functionName = functionCall.name;
+        const functionArgs = JSON.parse(functionCall.arguments);
+        
+        const func = this.availableFunctions.get(functionName);
+        if (!func) {
+            throw new Error(`Unknown function: ${functionName}`);
+        }
+        
+        try {
+            // Execute the function
+            const result = await func.handler(functionArgs);
+            
+            // Add function call and result to conversation
+            const updatedMessages = [
+                ...messages,
+                {
+                    role: 'assistant',
+                    content: null,
+                    function_call: functionCall
+                },
+                {
+                    role: 'function',
+                    name: functionName,
+                    content: JSON.stringify(result)
+                }
+            ];
+            
+            // Generate final response based on function result
+            const finalResponse = await this.generateResponseWithProvider(updatedMessages, {
+                ...options,
+                functions: undefined,
+                function_call: undefined
+            });
+            
+            return {
+                ...finalResponse,
+                function_result: result,
+                function_name: functionName
+            };
+            
+        } catch (error) {
+            console.error(`Function ${functionName} failed:`, error);
+            return {
+                content: `I encountered an error while trying to ${functionName.replace('_', ' ')}: ${error.message}`,
+                provider: this.provider,
+                model: this.model,
+                error: true
+            };
+        }
     }
 
     async delay(ms) {

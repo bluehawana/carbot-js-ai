@@ -1,9 +1,18 @@
-const Porcupine = require('@picovoice/porcupine-node');
+console.log(`
+#################################################
+#                                               #
+#      LOADING WAKE WORD DETECTOR MODULE        #
+#                                               #
+#################################################
+`);
+
+const { Porcupine } = require('@picovoice/porcupine-node');
 const { PvRecorder } = require('@picovoice/pvrecorder-node');
 const path = require('path');
 
 class WakeWordDetector {
     constructor(accessKey, sensitivity = 0.5) {
+        console.log('[WakeWordDetector CONSTRUCTOR] Creating new instance...');
         this.accessKey = accessKey;
         this.sensitivity = sensitivity;
         this.porcupine = null;
@@ -13,25 +22,31 @@ class WakeWordDetector {
             onWakeWord: null,
             onError: null
         };
+        console.log('[WakeWordDetector CONSTRUCTOR] Instance created.');
     }
 
     async initialize() {
+        console.log('[WakeWordDetector] Initializing...');
         // Check if we have access key and model file
         if (!this.accessKey) {
-            console.log('No Picovoice access key provided, using fallback detection');
+            console.log('[WakeWordDetector] No Picovoice access key provided, using fallback detection.');
             return this.initializeFallback();
         }
+        console.log(`[WakeWordDetector] Using AccessKey: ${this.accessKey.substring(0, 5)}...`);
 
-        const modelPath = path.join(__dirname, '../../models/hicar_en_linux_v3_0_0.ppn');
+        const modelPath = path.join(__dirname, '../../models/Hello-My-Car_en_mac_v3_0_0.ppn');
         const fs = require('fs');
         
+        console.log(`[WakeWordDetector] Checking for model at: ${modelPath}`);
         if (!fs.existsSync(modelPath)) {
-            console.log('Wake word model not found, using fallback detection');
+            console.error(`[WakeWordDetector] FATAL: Wake word model not found at path: ${modelPath}`);
+            console.log('[WakeWordDetector] Using fallback detection as a result.');
             return this.initializeFallback();
         }
+        console.log('[WakeWordDetector] Wake word model found.');
 
         try {
-            // Create custom wake word model for "hicar"
+            console.log('[WakeWordDetector] Attempting to create Porcupine instance...');
             const keywordPaths = [modelPath];
 
             this.porcupine = new Porcupine(
@@ -39,17 +54,22 @@ class WakeWordDetector {
                 keywordPaths,
                 [this.sensitivity]
             );
+            console.log('[WakeWordDetector] Porcupine instance created successfully.');
 
             // Initialize audio recorder
+            console.log('[WakeWordDetector] Initializing audio recorder...');
             this.recorder = new PvRecorder(
                 this.porcupine.frameLength,
                 -1 // Use default audio device
             );
+            console.log('[WakeWordDetector] Audio recorder initialized.');
 
             console.log('Wake word detector initialized successfully');
             return true;
         } catch (error) {
-            console.error('Failed to initialize wake word detector:', error);
+            console.error('--- WAKE WORD ENGINE FAILED TO INITIALIZE (CAUGHT ERROR) ---');
+            console.error(error);
+            console.error('-------------------------------------------------');
             console.log('Falling back to simple detection');
             return this.initializeFallback();
         }
@@ -71,7 +91,7 @@ class WakeWordDetector {
             this.recorder.start();
         }
 
-        console.log('Started listening for wake word: "hicar"');
+        console.log('Started listening for wake word: "Hello My Car"');
 
         // Audio processing loop (only for actual Porcupine detection)
         if (!this.isFallback) {
@@ -88,7 +108,7 @@ class WakeWordDetector {
                 const keywordIndex = this.porcupine.process(frame);
 
                 if (keywordIndex >= 0) {
-                    console.log('Wake word detected: "hicar"');
+                    console.log('Wake word detected: "Hello My Car"');
                     if (this.callbacks.onWakeWord) {
                         this.callbacks.onWakeWord();
                     }
@@ -156,7 +176,7 @@ class WakeWordDetector {
         // Simple timer-based wake word simulation for testing
         this.wakeWordTimer = setInterval(() => {
             if (this.isListening) {
-                console.log('🎤 Fallback listening... Say "hicar" to activate (simulated every 10s)');
+                console.log('🎤 Fallback listening... Say "Hello My Car" to activate (simulated every 10s)');
                 this.broadcastListeningStatus('listening');
             }
         }, 10000);

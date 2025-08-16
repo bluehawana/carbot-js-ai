@@ -4,7 +4,7 @@ An intelligent AI voice assistant with real-time data searching capabilities, de
 
 ## Features
 
-- Advanced wake word detection ("hicar")
+- Advanced wake word detection ("Hello My Car")
 - Real-time web search and data retrieval
 - Intelligent speech recognition and natural text-to-speech
 - Context-aware conversations with memory

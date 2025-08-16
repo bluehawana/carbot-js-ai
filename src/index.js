@@ -3,30 +3,57 @@
 require('dotenv').config();
 const GoogleAutoAPI = require('./api/googleAutoAPI');
 const CarFeatures = require('./utils/carFeatures');
+const CarSystemIntegration = require('./services/carSystemIntegration');
 
 // Initialize the application
 class CarBot {
     constructor() {
         this.carFeatures = new CarFeatures();
-        this.api = new GoogleAutoAPI({
+        
+        // Initialize advanced AI car system
+        this.carSystem = new CarSystemIntegration({
+            aiProvider: process.env.AI_PROVIDER || 'groq',
+            audioQuality: process.env.AUDIO_QUALITY || 'medium',
+            wakeWordSensitivity: process.env.WAKE_WORD_SENSITIVITY || 'medium',
+            picovoiceAccessKey: process.env.PICOVOICE_ACCESS_KEY,
+            enableNavigation: true,
+            enableMusic: true,
+            enablePhone: true,
+            enableClimate: true,
+            enableEmergency: true
+        });
+
+        this.api = new GoogleAutoAPI(this.carSystem, {
             port: process.env.PORT || 3000
         });
         
+        this.setupSystemIntegration();
         this.setupGracefulShutdown();
     }
 
     async start() {
         try {
-            console.log('🚗 Starting CarBot...');
-            console.log('🎯 Target: Google Auto Platform');
-            console.log('🎤 Wake word: "hicar"');
+            console.log('🚗 Starting CarBot Advanced AI System...');
+            console.log('🎯 Target: Android Auto Platform');
+            console.log('🎤 Advanced Voice Recognition: Wake Word + VAD');
+            console.log('🤖 AI Provider:', process.env.AI_PROVIDER || 'groq');
+            console.log('⚡ Features: Function Calling, Real-time Audio, Visual Feedback');
+            
+            await this.carSystem.initialize();
+
+            // Test system connections
+            console.log('🔍 Testing system connections...');
+            const connectionTest = await this.carSystem.testConnection();
+            console.log('✅ AI Provider:', connectionTest.ai.success ? 'Connected' : 'Failed');
+            console.log('✅ Audio Stream:', connectionTest.audioStream.isStreaming ? 'Active' : 'Inactive');
             
             // Start the API server
             this.api.start();
             
-            console.log('✅ CarBot is ready!');
+            console.log('✅ CarBot Advanced AI System is ready!');
             console.log('📱 API server running on port', process.env.PORT || 3000);
-            console.log('🎧 Listening for wake word...');
+            console.log('🎧 Listening for voice activation...');
+            console.log('👁️ Visual feedback system active');
             
             // Play startup greeting if enabled
             await this.playStartupGreeting();
@@ -44,10 +71,10 @@ class CarBot {
             
             console.log(`🎤 ${assistantName}: "${greetingMessage}"`);
             
-            // Send greeting to TTS if available
+            // Send greeting to TTS
             try {
-                if (this.api && this.api.textToSpeech) {
-                    const audioResponse = await this.api.textToSpeech.synthesize(greetingMessage);
+                if (this.carSystem) {
+                    const audioResponse = await this.carSystem.speakResponse(greetingMessage);
                     console.log('🔊 Startup greeting ready for playback');
                     
                     // Optionally play immediately or send to Android app
@@ -71,9 +98,53 @@ class CarBot {
         }
     }
 
+    setupSystemIntegration() {
+        // Listen for car system events
+        this.carSystem.on('systemReady', () => {
+            console.log('🚗 Car system integration ready');
+        });
+        
+        this.carSystem.on('voiceActivated', (data) => {
+            console.log('🎤 Voice activated:', data.mode);
+            this.broadcastEvent('voice_activated', data);
+        });
+        
+        this.carSystem.on('navigationStarted', (data) => {
+            console.log('🗺️ Navigation started to:', data.destination);
+            this.broadcastEvent('navigation_started', data);
+        });
+        
+        this.carSystem.on('musicStateChanged', (data) => {
+            console.log('🎵 Music state:', data);
+            this.broadcastEvent('music_state_changed', data);
+        });
+        
+        this.carSystem.on('emergencyActivated', () => {
+            console.log('🚨 Emergency mode activated');
+            this.broadcastEvent('emergency_activated', { timestamp: Date.now() });
+        });
+        
+        this.carSystem.on('stateChange', (data) => {
+            this.broadcastEvent('system_state_changed', data);
+        });
+    }
+    
+    broadcastEvent(eventName, data) {
+        if (this.api && this.api.io) {
+            this.api.io.emit(eventName, {
+                ...data,
+                timestamp: new Date().toISOString()
+            });
+        }
+    }
+    
     setupGracefulShutdown() {
         const shutdown = (signal) => {
             console.log(`\n🛑 Received ${signal}, shutting down gracefully...`);
+            
+            if (this.carSystem) {
+                this.carSystem.destroy();
+            }
             
             if (this.api) {
                 this.api.stop();
@@ -90,25 +161,8 @@ class CarBot {
 
 // Check if required environment variables are set
 function checkEnvironment() {
-    const provider = process.env.AI_PROVIDER || 'groq';
-    let apiKeyRequired = '';
-    
-    switch (provider.toLowerCase()) {
-        case 'openai':
-            apiKeyRequired = 'OPENAI_API_KEY';
-            break;
-        case 'groq':
-            apiKeyRequired = 'GROQ_API_KEY';
-            break;
-        case 'perplexity':
-            apiKeyRequired = 'PERPLEXITY_API_KEY';
-            break;
-        case 'claude':
-            apiKeyRequired = 'ANTHROPIC_API_KEY';
-            break;
-        default:
-            apiKeyRequired = 'GROQ_API_KEY'; // default to Groq
-    }
+    const provider = 'groq';
+    let apiKeyRequired = 'GROQ_API_KEY';
     
     const required = [
         apiKeyRequired
@@ -152,8 +206,11 @@ function checkEnvironment() {
 
 // Main execution
 if (require.main === module) {
-    console.log('🚀 CarBot - Voice Assistant for Google Auto');
-    console.log('================================================');
+    console.log('🚀 CarBot - Advanced AI Voice Assistant for Android Auto');
+    console.log('=========================================================');
+    console.log('🎯 Features: VAD, Function Calling, Real-time Audio, Visual Feedback');
+    console.log('🤖 Inspired by onju-voice architecture for superior performance');
+    console.log('');
     
     // Check environment
     checkEnvironment();

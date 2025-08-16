@@ -4,7 +4,7 @@ const SocialMediaService = require('../services/socialMediaService');
 class ConversationHandler {
     constructor(options = {}) {
         this.aiProvider = new AIProvider({
-            provider: options.provider || process.env.AI_PROVIDER || 'openai',
+            provider: options.provider || process.env.AI_PROVIDER || 'groq',
             apiKey: options.apiKey
         });
         
