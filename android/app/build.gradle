@@ -4,11 +4,12 @@ plugins {
 }
 
 android {
+    namespace 'com.aicarbot.app'
     compileSdk rootProject.ext.compileSdkVersion
 
     defaultConfig {
-        applicationId "com.ecarx.bot"
-        minSdk rootProject.ext.minSdkVersion
+        applicationId "com.aicarbot.app"
+        minSdk 26  // Changed from 23 to 26 to support adaptive icons
         targetSdk rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
@@ -17,6 +18,10 @@ android {
     }
 
     buildTypes {
+        debug {
+            minifyEnabled false
+            shrinkResources false  
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -53,6 +58,9 @@ dependencies {
     
     // Permissions
     implementation 'pub.devrel:easypermissions:3.0.0'
+    
+    // Media Session Support
+    implementation 'androidx.media:media:1.6.0'
     
     // Testing
     testImplementation "junit:junit:${rootProject.ext.junitVersion}"

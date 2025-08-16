@@ -98,7 +98,7 @@ class AIProvider {
                 return 'microsoft/DialoGPT-medium';
             case 'google':
             case 'gemini':
-                return 'gemini-1.5-flash';
+                return 'gemini-2.5-pro';
             case 'qwen':
                 return 'qwen-turbo';
             default:

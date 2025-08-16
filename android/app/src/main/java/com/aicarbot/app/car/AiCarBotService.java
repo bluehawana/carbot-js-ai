@@ -1,4 +1,4 @@
-package com.ecarx.bot.car;
+package com.aicarbot.app.car;
 
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
@@ -8,7 +8,7 @@ import androidx.car.app.Screen;
 import androidx.car.app.Session;
 import androidx.car.app.validation.HostValidator;
 
-public class EcarxCarAppService extends CarAppService {
+public class AiCarBotService extends CarAppService {
     
     @NonNull
     @Override
@@ -25,10 +25,10 @@ public class EcarxCarAppService extends CarAppService {
     @NonNull
     @Override
     public Session onCreateSession() {
-        return new EcarxSession();
+        return new AiCarBotSession();
     }
 
-    public class EcarxSession extends Session {
+    public class AiCarBotSession extends Session {
         
         @NonNull
         @Override

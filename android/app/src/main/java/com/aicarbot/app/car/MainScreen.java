@@ -1,4 +1,4 @@
-package com.ecarx.bot.car;
+package com.aicarbot.app.car;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
@@ -7,11 +7,12 @@ import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.ListTemplate;
+import androidx.car.app.model.ItemList;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.core.graphics.drawable.IconCompat;
 
-import com.ecarx.bot.R;
+import com.aicarbot.app.R;
 
 public class MainScreen extends Screen {
     
@@ -24,7 +25,7 @@ public class MainScreen extends Screen {
     public Template onGetTemplate() {
         return new ListTemplate.Builder()
                 .setSingleList(createMainList())
-                .setTitle("ECARX Assistant")
+                .setTitle(getCarContext().getString(R.string.main_title))
                 .setHeaderAction(Action.APP_ICON)
                 .setActionStrip(createActionStrip())
                 .build();
@@ -33,40 +34,41 @@ public class MainScreen extends Screen {
     private ItemList createMainList() {
         return new ItemList.Builder()
                 .addItem(new Row.Builder()
-                        .setTitle("Voice Commands")
-                        .setText("Say 'Hi ECARX' to start")
+                        .setTitle(getCarContext().getString(R.string.voice_assistant))
+                        .addText(getCarContext().getString(R.string.voice_assistant_subtitle))
+                        .addText(getCarContext().getString(R.string.voice_activation_methods))
                         .setImage(new CarIcon.Builder(
                                 IconCompat.createWithResource(getCarContext(), R.drawable.ic_mic))
                                 .build())
                         .setOnClickListener(this::onVoiceCommandClick)
                         .build())
                 .addItem(new Row.Builder()
-                        .setTitle("Navigation")
-                        .setText("Get directions and traffic info")
+                        .setTitle(getCarContext().getString(R.string.navigation_title))
+                        .addText(getCarContext().getString(R.string.navigation_subtitle))
                         .setImage(new CarIcon.Builder(
                                 IconCompat.createWithResource(getCarContext(), R.drawable.ic_navigation))
                                 .build())
                         .setOnClickListener(this::onNavigationClick)
                         .build())
                 .addItem(new Row.Builder()
-                        .setTitle("Music")
-                        .setText("Control music playback")
+                        .setTitle(getCarContext().getString(R.string.music_title))
+                        .addText(getCarContext().getString(R.string.music_subtitle))
                         .setImage(new CarIcon.Builder(
                                 IconCompat.createWithResource(getCarContext(), R.drawable.ic_music))
                                 .build())
                         .setOnClickListener(this::onMusicClick)
                         .build())
                 .addItem(new Row.Builder()
-                        .setTitle("Phone")
-                        .setText("Make calls and send messages")
+                        .setTitle(getCarContext().getString(R.string.phone_title))
+                        .addText(getCarContext().getString(R.string.phone_subtitle))
                         .setImage(new CarIcon.Builder(
                                 IconCompat.createWithResource(getCarContext(), R.drawable.ic_phone))
                                 .build())
                         .setOnClickListener(this::onPhoneClick)
                         .build())
                 .addItem(new Row.Builder()
-                        .setTitle("Settings")
-                        .setText("Configure ECARX preferences")
+                        .setTitle(getCarContext().getString(R.string.settings_title))
+                        .addText(getCarContext().getString(R.string.settings_subtitle))
                         .setImage(new CarIcon.Builder(
                                 IconCompat.createWithResource(getCarContext(), R.drawable.ic_settings))
                                 .build())
@@ -78,14 +80,14 @@ public class MainScreen extends Screen {
     private ActionStrip createActionStrip() {
         return new ActionStrip.Builder()
                 .addAction(new Action.Builder()
-                        .setTitle("Voice")
+                        .setTitle("🎤 Voice")
                         .setIcon(new CarIcon.Builder(
                                 IconCompat.createWithResource(getCarContext(), R.drawable.ic_mic))
                                 .build())
                         .setOnClickListener(this::onVoiceCommandClick)
                         .build())
                 .addAction(new Action.Builder()
-                        .setTitle("Help")
+                        .setTitle(getCarContext().getString(R.string.help))
                         .setIcon(new CarIcon.Builder(
                                 IconCompat.createWithResource(getCarContext(), R.drawable.ic_help))
                                 .build())

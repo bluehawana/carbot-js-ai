@@ -158,8 +158,13 @@ class IntentRecognition {
     }
 
     // Context-aware intent recognition
-    recognizeIntentWithContext(text, context = {}) {
+    recognizeIntentWithContext(text, context = null) {
         const baseIntent = this.recognizeIntent(text);
+        
+        // If no context provided, return base intent
+        if (!context) {
+            return baseIntent;
+        }
         
         // Adjust confidence based on context
         if (context.navigationActive && baseIntent.intent === 'navigation') {
@@ -170,7 +175,7 @@ class IntentRecognition {
             baseIntent.confidence += 0.2;
         }
         
-        if (context.speed > 0 && baseIntent.intent === 'emergency') {
+        if (context.speed && context.speed > 0 && baseIntent.intent === 'emergency') {
             baseIntent.confidence += 0.3;
         }
         
