@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.carbot.android">
+
+    <!-- Required permissions for Android Auto and voice -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    
+    <!-- Android Auto permissions -->
+    <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
+    <uses-permission android:name="com.google.android.gms.permission.CAR_APPLICATION" />
+    
+    <!-- Car app feature -->
+    <uses-feature 
+        android:name="android.hardware.type.automotive"
+        android:required="false" />
+    
+    <application
+        android:allowBackup="true"
+        android:label="CarBot Voice Assistant"
+        android:theme="@android:style/Theme.DeviceDefault.NoActionBar">
+        
+        <!-- CarBot MediaBrowserService for Android Auto -->
+        <service
+            android:name=".CarBotService"
+            android:exported="true"
+            android:foregroundServiceType="mediaPlayback">
+            
+            <intent-filter>
+                <action android:name="android.media.browse.MediaBrowserService" />
+            </intent-filter>
+            
+            <!-- Android Auto metadata -->
+            <meta-data
+                android:name="com.google.android.gms.car.application"
+                android:resource="@xml/automotive_app_desc" />
+                
+        </service>
+        
+        <!-- Main Activity (minimal - service handles everything) -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            
+            <!-- Android Auto launcher -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.CAR_LAUNCHER" />
+            </intent-filter>
+            
+        </activity>
+        
+    </application>
+</manifest>

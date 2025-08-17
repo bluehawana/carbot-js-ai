@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CarBot Conversation</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .dialog-container {
+            width: 90%;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .status {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .status-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .status-text {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .conversation {
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 15px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            background: rgba(33, 150, 243, 0.3);
+            border-left: 3px solid #2196F3;
+        }
+        
+        .carbot-message {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .message-label {
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            opacity: 0.8;
+        }
+        
+        .message-text {
+            font-size: 16px;
+            line-height: 1.4;
+        }
+        
+        .timestamp {
+            font-size: 11px;
+            opacity: 0.6;
+            margin-top: 5px;
+        }
+        
+        .listening-indicator {
+            display: none;
+            text-align: center;
+            padding: 15px;
+            background: rgba(255, 193, 7, 0.2);
+            border-radius: 10px;
+            border-left: 4px solid #FFC107;
+            margin-top: 15px;
+        }
+        
+        .listening-indicator.active {
+            display: block;
+            animation: glow 1.5s infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 193, 7, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(255, 193, 7, 0.8); }
+        }
+        
+        .error-message {
+            background: rgba(244, 67, 54, 0.3);
+            border-left: 3px solid #f44336;
+            padding: 10px 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="dialog-container">
+        <div class="status">
+            <div class="status-icon" id="statusIcon">🎤</div>
+            <div class="status-text" id="statusText">Listening for "Hello My Car"...</div>
+        </div>
+        
+        <div class="conversation" id="conversation">
+            <div style="text-align: center; opacity: 0.6; font-style: italic;">
+                Say "Hello My Car" to start conversation
+            </div>
+        </div>
+        
+        <div class="listening-indicator" id="listeningIndicator">
+            <strong>🎤 Listening...</strong> Speak your command now
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        class ConversationDialog {
+            constructor() {
+                this.conversation = document.getElementById('conversation');
+                this.statusIcon = document.getElementById('statusIcon');
+                this.statusText = document.getElementById('statusText');
+                this.listeningIndicator = document.getElementById('listeningIndicator');
+                
+                this.connectToCarBot();
+            }
+            
+            startListening() {
+                // Simulate continuous listening for wake word
+                this.checkWakeWord();
+            }
+            
+            async checkWakeWord() {
+                // Poll for wake word detection every 2 seconds
+                setInterval(async () => {
+                    try {
+                        // In real implementation, this would be triggered by actual wake word detection
+                        // For demo, we'll check if backend detected the wake word
+                        const response = await fetch('/health');
+                        if (response.ok) {
+                            this.updateStatus('🎤', 'Ready - Say "Hello My Car"');
+                        }
+                    } catch (error) {
+                        this.updateStatus('⚠️', 'CarBot offline - Starting...');
+                    }
+                }, 2000);
+            }
+            
+            connectToCarBot() {
+                // Real-time WebSocket connection to CarBot backend
+                this.socket = io();
+                
+                // Listen for status updates
+                this.socket.on('status', (data) => {
+                    this.updateStatus(data.icon, data.text);
+                });
+                
+                // Listen for conversation updates
+                this.socket.on('conversation', (data) => {
+                    this.handleConversationUpdate(data);
+                });
+                
+                // Connection status
+                this.socket.on('connect', () => {
+                    console.log('🔌 Connected to CarBot');
+                    this.clearConversation();
+                    this.addSystemMessage('Connected to CarBot - Say "Hello My Car" to start');
+                });
+                
+                this.socket.on('disconnect', () => {
+                    console.log('🔌 Disconnected from CarBot');
+                    this.updateStatus('⚠️', 'Disconnected - Reconnecting...');
+                });
+            }
+            
+            handleConversationUpdate(data) {
+                switch(data.type) {
+                    case 'wake':
+                        this.addMessage('user', data.message, true);
+                        this.showListeningIndicator(true);
+                        break;
+                    case 'user':
+                        this.addMessage('user', data.message);
+                        this.showListeningIndicator(false);
+                        break;
+                    case 'carbot':
+                        this.addMessage('carbot', data.message);
+                        break;
+                    case 'status':
+                        this.updateStatus('🧠', data.message);
+                        break;
+                }
+            }
+            
+            pollForUpdates() {
+                setInterval(() => {
+                    // Check for new conversation updates
+                    this.checkForNewMessages();
+                }, 1000);
+            }
+            
+            async simulateConversation() {
+                this.clearConversation();
+                
+                // Show wake word detected
+                this.addMessage('user', 'Hello My Car', true);
+                this.updateStatus('🎯', 'Wake word detected!');
+                
+                await this.delay(1000);
+                
+                // Show CarBot response
+                this.addMessage('carbot', 'Hello master, what can I do for you today?');
+                this.updateStatus('🎤', 'Listening for your command...');
+                this.showListeningIndicator(true);
+                
+                await this.delay(3000);
+                
+                // Simulate user command
+                this.addMessage('user', 'Navigate to downtown');
+                this.updateStatus('🧠', 'Processing...');
+                this.showListeningIndicator(false);
+                
+                await this.delay(2000);
+                
+                // Show CarBot response
+                this.addMessage('carbot', 'Navigation started to downtown. ETA is 15 minutes.');
+                this.updateStatus('✅', 'Command completed');
+                
+                await this.delay(2000);
+                
+                // Reset to listening
+                this.updateStatus('🎤', 'Ready - Say "Hello My Car"');
+            }
+            
+            addMessage(sender, text, isWakeWord = false) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}-message`;
+                
+                const label = sender === 'user' ? '👤 You' : '🤖 CarBot';
+                const time = new Date().toLocaleTimeString();
+                
+                messageDiv.innerHTML = `
+                    <div class="message-label">${label}</div>
+                    <div class="message-text">${text}</div>
+                    <div class="timestamp">${time}</div>
+                `;
+                
+                this.conversation.appendChild(messageDiv);
+                this.conversation.scrollTop = this.conversation.scrollHeight;
+            }
+            
+            addSystemMessage(text) {
+                const messageDiv = document.createElement('div');
+                messageDiv.style.textAlign = 'center';
+                messageDiv.style.opacity = '0.6';
+                messageDiv.style.fontStyle = 'italic';
+                messageDiv.style.margin = '10px 0';
+                messageDiv.textContent = text;
+                
+                this.conversation.appendChild(messageDiv);
+                this.conversation.scrollTop = this.conversation.scrollHeight;
+            }
+            
+            updateStatus(icon, text) {
+                this.statusIcon.textContent = icon;
+                this.statusText.textContent = text;
+            }
+            
+            showListeningIndicator(show) {
+                this.listeningIndicator.classList.toggle('active', show);
+            }
+            
+            clearConversation() {
+                this.conversation.innerHTML = '';
+            }
+            
+            delay(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+            
+            async checkForNewMessages() {
+                // In production, this would check for real conversation updates
+                // For now, we simulate periodic wake word detection
+                if (Math.random() < 0.01) { // 1% chance every second = conversation every ~100 seconds
+                    this.simulateConversation();
+                }
+            }
+        }
+        
+        // Auto-start conversation dialog
+        document.addEventListener('DOMContentLoaded', () => {
+            const dialog = new ConversationDialog();
+            
+            // Demo: Start a conversation after 5 seconds
+            setTimeout(() => {
+                dialog.simulateConversation();
+            }, 5000);
+        });
+        
+        // API integration functions
+        async function sendWakeWord() {
+            try {
+                const response = await fetch('/api/wake-word', {
+                    method: 'POST'
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Wake word API error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+        
+        async function sendVoiceCommand(command) {
+            try {
+                const response = await fetch('/api/voice-command', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command })
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Voice command API error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+    </script>
+</body>
+</html>

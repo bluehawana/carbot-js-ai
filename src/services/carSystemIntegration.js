@@ -684,6 +684,50 @@ class CarSystemIntegration extends EventEmitter {
         return this.services.wakeWordDetector.triggerWakeWord(source);
     }
     
+    // Handle voice commands directly (for testing without microphone)
+    async handleVoiceCommand(commandText) {
+        console.log(`🎤 Processing voice command: "${commandText}"`);
+        
+        try {
+            this.setMode('processing');
+            
+            // Process through conversation flow
+            const response = await this.services.conversationFlow.processUserInput(
+                commandText,
+                { source: 'api', timestamp: Date.now() }
+            );
+            
+            if (response) {
+                await this.handleAssistantResponse(response);
+                return response;
+            } else {
+                // Fallback response if conversation flow doesn't work
+                const aiResponse = await this.services.aiProvider.generateResponse([
+                    { role: 'user', content: commandText }
+                ]);
+                
+                const fallbackResponse = {
+                    content: aiResponse.content,
+                    audioResponse: null
+                };
+                
+                await this.handleAssistantResponse(fallbackResponse);
+                return fallbackResponse;
+            }
+        } catch (error) {
+            console.error('Error processing voice command:', error);
+            this.setMode('idle');
+            
+            const errorResponse = {
+                content: "I'm sorry, I couldn't process that command. Could you try again?",
+                audioResponse: null,
+                error: error.message
+            };
+            
+            return errorResponse;
+        }
+    }
+    
     destroy() {
         // Stop all services
         Object.values(this.services).forEach(service => {
