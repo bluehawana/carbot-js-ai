@@ -54,7 +54,7 @@ console.log('3. Add your API key (edit .env):');
 console.log('   OPENAI_API_KEY=sk-...');
 console.log('   ANTHROPIC_API_KEY=sk-ant-...');
 console.log('   GROK_API_KEY=xai-...');
-console.log('   GROQ_API_KEY=gsk_...');
+console.log('   GROQ_API_KEY=your_groq_api_key_here');
 console.log('');
 console.log('4. Start CarBot:');
 console.log('   npm start');

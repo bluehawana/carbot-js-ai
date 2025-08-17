@@ -78,7 +78,7 @@ class CarBotService : MediaBrowserServiceCompat() {
     private fun initializeWakeWordDetection() {
         try {
             porcupineManager = PorcupineManager.Builder()
-                .setAccessKey("0bkk1oELCAmNqGv4E/uWNPYaMQe5Amd9QHNiQPorfwNVAMGX51jsnQ==")
+                .setAccessKey(BuildConfig.PICOVOICE_ACCESS_KEY)
                 .setKeywordPaths(listOf("Hello-My-Car_en_mac_v3_0_0.ppn"))
                 .setSensitivity(0.5f)
                 .build(this) { keywordIndex ->

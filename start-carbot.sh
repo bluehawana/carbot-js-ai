@@ -8,9 +8,15 @@ echo "🚗 CarBot Android Auto - Pure Terminal Mode"
 echo "═══════════════════════════════════════════════"
 echo "⚡ Starting backend services..."
 
-# Set environment variables
-export PICOVOICE_ACCESS_KEY="${PICOVOICE_ACCESS_KEY}"
-export GROQ_API_KEY="${GROQ_API_KEY}"
+# Load environment variables from .env file
+if [ -f .env ]; then
+    export $(cat .env | grep -v '^#' | xargs)
+    echo "✅ Environment variables loaded from .env"
+else
+    echo "⚠️ No .env file found. Please copy .env.example to .env and set your API keys"
+    echo "Required variables: GROQ_API_KEY, PICOVOICE_ACCESS_KEY"
+fi
+
 export NODE_ENV="production"
 
 # Start backend in background
