@@ -21,4 +21,7 @@
     <color name="success_green">#4CAF50</color>
     <color name="warning_orange">#FF9800</color>
     <color name="error_red">#F44336</color>
+    
+    <!-- Notification Colors -->
+    <color name="notification_color">@color/carbot_primary</color>
 </resources>

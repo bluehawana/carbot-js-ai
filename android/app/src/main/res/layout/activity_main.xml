@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    tools:context=".MainActivity">
+
+    <!-- Header -->
+    <LinearLayout
+        android:id="@+id/header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="24dp"
+        android:background="@color/carbot_primary"
+        android:elevation="8dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_car_logo"
+            android:contentDescription="CarBot Logo"
+            android:layout_marginEnd="16dp" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="CarBot AI Assistant"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium" />
+
+        <View
+            android:layout_width="12dp"
+            android:layout_height="12dp"
+            android:background="@drawable/status_indicator"
+            android:id="@+id/connectionStatus" />
+
+    </LinearLayout>
+
+    <!-- Status Card -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/statusCard"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_margin="16dp"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="12dp"
+        app:layout_constraintTop_toBottomOf="@id/header"
+        app:layout_constraintBottom_toTopOf="@id/controlsContainer">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="24dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/statusText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="🚗 Welcome to CarBot AI\n\nYour intelligent car assistant is ready!\n\nTap the microphone below to start a conversation."
+                    android:textSize="18sp"
+                    android:textColor="@color/gray_dark"
+                    android:lineSpacingMultiplier="1.4"
+                    android:fontFamily="sans-serif" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/gray_light"
+                    android:layout_marginVertical="16dp" />
+
+                <TextView
+                    android:id="@+id/connectionText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="⚡ Connecting to AI backend..."
+                    android:textSize="14sp"
+                    android:textColor="@color/carbot_primary"
+                    android:fontFamily="sans-serif-medium" />
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </androidx.cardview.widget.CardView>
+
+    <!-- Controls Container -->
+    <LinearLayout
+        android:id="@+id/controlsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <!-- Main Voice Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/voiceButton"
+            style="@style/Widget.MaterialComponents.Button"
+            android:layout_width="match_parent"
+            android:layout_height="72dp"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="@color/carbot_primary"
+            android:text="🎤 Speak to CarBot"
+            android:textColor="@color/white"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            app:cornerRadius="36dp"
+            app:icon="@drawable/ic_mic"
+            app:iconGravity="start"
+            app:iconPadding="12dp"
+            app:iconSize="32dp"
+            app:iconTint="@color/white"
+            android:elevation="8dp" />
+
+        <!-- Quick Actions Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/demoButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginEnd="6dp"
+                android:text="Demo"
+                android:textSize="14sp"
+                app:cornerRadius="28dp"
+                app:icon="@drawable/ic_play_arrow"
+                app:iconSize="20dp"
+                app:strokeColor="@color/carbot_primary"
+                app:strokeWidth="2dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/settingsButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="6dp"
+                android:text="Settings"
+                android:textSize="14sp"
+                app:cornerRadius="28dp"
+                app:icon="@drawable/ic_settings"
+                app:iconSize="20dp"
+                app:strokeColor="@color/carbot_primary"
+                app:strokeWidth="2dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/helpButton"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="0dp"
+                android:layout_height="56dp"
+                android:layout_weight="1"
+                android:layout_marginStart="6dp"
+                android:text="Help"
+                android:textSize="14sp"
+                app:cornerRadius="28dp"
+                app:icon="@drawable/ic_help"
+                app:iconSize="20dp"
+                app:strokeColor="@color/carbot_primary"
+                app:strokeWidth="2dp" />
+
+        </LinearLayout>
+
+        <!-- Voice Animation (Hidden by default) -->
+        <LinearLayout
+            android:id="@+id/voiceAnimation"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="24dp"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/voice_bar_animation"
+                android:id="@+id/voiceBar1" />
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="32dp"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/voice_bar_animation"
+                android:id="@+id/voiceBar2" />
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="40dp"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/voice_bar_animation"
+                android:id="@+id/voiceBar3" />
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="32dp"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/voice_bar_animation"
+                android:id="@+id/voiceBar4" />
+
+            <View
+                android:layout_width="8dp"
+                android:layout_height="24dp"
+                android:layout_marginHorizontal="2dp"
+                android:background="@drawable/voice_bar_animation"
+                android:id="@+id/voiceBar5" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
