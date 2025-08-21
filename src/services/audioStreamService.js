@@ -12,7 +12,7 @@ class AudioStreamService extends EventEmitter {
             channels: options.channels || 1,
             bitDepth: options.bitDepth || 16,
             chunkSize: options.chunkSize || 1024,
-            udpPort: options.udpPort || 8080,
+            udpPort: options.udpPort || 8082,
             tcpPort: options.tcpPort || 8081,
             maxLatency: options.maxLatency || 50, // ms
             bufferSize: options.bufferSize || 4096,

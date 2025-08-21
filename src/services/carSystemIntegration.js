@@ -5,7 +5,7 @@ const VisualFeedbackService = require('./visualFeedbackService');
 const AudioStreamService = require('./audioStreamService');
 const ConversationFlowService = require('./conversationFlowService');
 const AIProvider = require('../ai/aiProvider');
-const TextToSpeechService = require('../audio/textToSpeech.js');
+const OptimizedTextToSpeechService = require('../audio/optimizedTextToSpeech');
 
 class CarSystemIntegration extends EventEmitter {
     constructor(options = {}) {
@@ -36,11 +36,13 @@ class CarSystemIntegration extends EventEmitter {
             }),
             audioStream: new AudioStreamService({
                 protocol: 'udp',
-                sampleRate: 16000
+                sampleRate: 16000,
+                udpPort: 8082
             }),
             conversationFlow: new ConversationFlowService({
                 interruptionTimeout: 2000,
-                enableContextAwareness: true
+                enableContextAwareness: true,
+                aiProvider: null // Will be set after aiProvider is created
             }),
             aiProvider: new AIProvider({
                 provider: this.options.aiProvider
@@ -49,8 +51,11 @@ class CarSystemIntegration extends EventEmitter {
                 this.options.picovoiceAccessKey,
                 this.getWakeWordSensitivity()
             ),
-            tts: new TextToSpeechService()
+            tts: new OptimizedTextToSpeechService()
         };
+        
+        // Link AI provider to conversation flow after creation
+        this.services.conversationFlow.aiProvider = this.services.aiProvider;
         
         // Car system states
         this.carState = {
@@ -528,15 +533,37 @@ class CarSystemIntegration extends EventEmitter {
         return sampleTexts[Math.floor(Math.random() * sampleTexts.length)];
     }
     
-    async speakResponse(text) {
+    async speakResponse(text, options = {}) {
         console.log('🔊 Speaking:', text);
         try {
-            const audioContent = await this.services.tts.synthesizeSpeech(text);
-            console.log('🔊 Audio content generated, now playing...');
-            await this.services.tts.playAudio(audioContent);
-            return audioContent;
+            // Use profile from options or default to current profile
+            const profile = options.profile || this.services.tts.currentProfile || 'default';
+            
+            const audioContent = await this.services.tts.synthesizeSpeech(text, null, profile);
+            
+            if (audioContent) {
+                console.log('🔊 Audio content generated, now playing...');
+                await this.services.tts.playAudio(audioContent);
+                console.log('✅ Speech playback completed');
+                
+                // Emit event for Android notification
+                this.emit('speechPlayed', { text, audioContent, options });
+                
+                return audioContent;
+            } else {
+                console.warn('🔇 No audio content generated');
+                return null;
+            }
         } catch (error) {
-            console.error('🔊 Error generating or playing speech:', error);
+            console.error('🔊 Error generating or playing speech:', error.message);
+            
+            // Try emergency fallback - just log the text 
+            console.log('💬 FALLBACK - Text that should have been spoken:', text);
+            
+            // Emit error event
+            this.emit('speechError', { text, error: error.message });
+            
+            return null;
         }
     }
     

@@ -1,0 +1,92 @@
+#!/bin/bash
+
+echo "🚗 CarBot In-Car Testing Guide"
+echo "=============================="
+echo ""
+echo "This script will help you test CarBot features in your car"
+echo ""
+
+# Get backend status
+if curl -s http://localhost:3000/api/health > /dev/null; then
+    echo "✅ Backend is running"
+else
+    echo "❌ Backend not running! Start with: npm start"
+    exit 1
+fi
+
+echo ""
+echo "📱 STEP 1: Connect Phone to Car"
+echo "--------------------------------"
+echo "1. Use a high-quality USB cable"
+echo "2. Unlock your phone"
+echo "3. Accept any Android Auto prompts"
+echo "4. Wait for Android Auto to load"
+echo ""
+read -p "Press Enter when connected to car..."
+
+echo ""
+echo "🎤 STEP 2: Test Wake Words"
+echo "--------------------------"
+echo "Say these phrases clearly:"
+echo "• 'Hello My Car'"
+echo "• 'Hey Car Bot'"
+echo "• 'OK My Car'"
+echo ""
+echo "Or tap the microphone button in CarBot"
+echo ""
+read -p "Press Enter after testing wake words..."
+
+echo ""
+echo "🤖 STEP 3: Test AI Features"
+echo "---------------------------"
+echo "Try these commands that Google Assistant CAN'T do:"
+echo ""
+echo "📰 Real-time Information:"
+echo "• 'What's Elon Musk's latest tweet?'"
+echo "• 'What did Trump post today?'"
+echo "• 'What's trending on Twitter?'"
+echo "• 'Latest cryptocurrency prices'"
+echo ""
+echo "🧠 Advanced AI:"
+echo "• 'Write a poem about driving'"
+echo "• 'Explain quantum physics simply'"
+echo "• 'Create a workout routine'"
+echo "• 'Tell me a joke about cars'"
+echo ""
+echo "🚗 Car-specific:"
+echo "• 'What's the best route avoiding traffic?'"
+echo "• 'Find the nearest EV charging station'"
+echo "• 'Recommend a good podcast for driving'"
+echo ""
+read -p "Press Enter after testing AI features..."
+
+echo ""
+echo "🔊 STEP 4: Audio Quality Check"
+echo "------------------------------"
+echo "1. Is the voice clear through car speakers?"
+echo "2. Can CarBot hear you over road noise?"
+echo "3. Does the wake word work while music is playing?"
+echo ""
+read -p "Rate audio quality (1-10): "
+
+echo ""
+echo "📊 STEP 5: Performance Check"
+echo "----------------------------"
+echo "Monitoring CarBot performance..."
+echo ""
+
+# Show recent logs
+echo "Recent CarBot logs:"
+adb logcat -d | grep -i carbot | tail -20
+
+echo ""
+echo "✅ Test Complete!"
+echo "-----------------"
+echo "CarBot is ready for daily use in your car!"
+echo ""
+echo "💡 Pro Tips:"
+echo "• Keep phone screen on for best performance"
+echo "• Use 'Hey Car Bot' in noisy environments"
+echo "• Report issues at: https://github.com/yourusername/carbot/issues"
+echo ""
+echo "🚀 Enjoy your AI-powered car assistant!"

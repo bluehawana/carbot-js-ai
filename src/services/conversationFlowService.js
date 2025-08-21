@@ -14,6 +14,9 @@ class ConversationFlowService extends EventEmitter {
             ...options
         };
         
+        // Initialize AI provider
+        this.aiProvider = options.aiProvider;
+        
         this.conversationState = {
             isActive: false,
             isSpeaking: false,
@@ -436,20 +439,38 @@ class ConversationFlowService extends EventEmitter {
     }
     
     async generateContextualResponse(turn) {
-        // This would integrate with the AI provider
+        // Integrate with the AI provider
         const contextMessages = this.buildContextMessages(turn);
         
-        // Simulate AI response for now
-        const response = {
-            content: this.generateSimpleResponse(turn),
-            metadata: {
-                confidence: turn.analysis?.confidence || 0.7,
-                responseTime: Date.now() - turn.timestamp,
-                contextUsed: contextMessages.length > 1
-            }
-        };
-        
-        return response;
+        try {
+            // Use actual AI provider instead of simulation
+            const aiResponse = await this.aiProvider.generateResponse(contextMessages, {
+                maxTokens: 150,
+                temperature: 0.7
+            });
+            
+            return {
+                content: aiResponse.content,
+                metadata: {
+                    confidence: turn.analysis?.confidence || 0.7,
+                    responseTime: Date.now() - turn.timestamp,
+                    contextUsed: contextMessages.length > 1,
+                    provider: aiResponse.provider
+                }
+            };
+        } catch (error) {
+            console.error('AI provider failed, using fallback:', error);
+            // Fallback to simple response if AI fails
+            return {
+                content: this.generateSimpleResponse(turn),
+                metadata: {
+                    confidence: 0.3,
+                    responseTime: Date.now() - turn.timestamp,
+                    contextUsed: false,
+                    fallback: true
+                }
+            };
+        }
     }
     
     generateSimpleResponse(turn) {

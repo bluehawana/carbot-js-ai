@@ -1,55 +1,39 @@
 console.log(`
 +++++++++++++++++++++++++++++++++++++++++
 +                                       +
-+      LOADING TEXT TO SPEECH MODULE      +
++    LOADING MICROSOFT EDGE TTS MODULE   +
 +                                       +
 +++++++++++++++++++++++++++++++++++++++++
 `);
 
-const textToSpeech = require('@google-cloud/text-to-speech');
+const EdgeTTSService = require('./edgeTTSService');
 const fs = require('fs');
 const path = require('path');
 const { promisify } = require('util');
 
 class TextToSpeechService {
     constructor(options = {}) {
-        console.log('[TextToSpeechService CONSTRUCTOR] Creating new instance...');
+        console.log('[TextToSpeechService CONSTRUCTOR] Creating new Edge TTS instance...');
         
         this.useFallback = false;
         
         try {
-            // Try to initialize Google Cloud TTS
-            if (process.env.GOOGLE_CLOUD_KEY_FILE && fs.existsSync(process.env.GOOGLE_CLOUD_KEY_FILE)) {
-                this.client = new textToSpeech.TextToSpeechClient({
-                    keyFilename: options.keyFilename || process.env.GOOGLE_CLOUD_KEY_FILE,
-                    projectId: options.projectId || process.env.GOOGLE_CLOUD_PROJECT_ID
-                });
-                console.log('✅ Google Cloud TTS initialized');
-            } else {
-                console.log('⚠️  Google Cloud credentials not found, using fallback TTS');
-                this.useFallback = true;
-            }
+            // Initialize Microsoft Edge TTS (FREE - no credentials needed!)
+            this.edgeTTS = new EdgeTTSService(options);
+            console.log('✅ Microsoft Edge TTS initialized (FREE)');
             
-            this.voice = {
-                languageCode: 'en-US',
-                name: 'en-US-Neural2-D', // Male voice
-                ssmlGender: 'MALE',
-                ...options.voice
-            };
-            
-            this.audioConfig = {
-                audioEncoding: 'MP3',
-                speakingRate: 1.0,
-                pitch: 0.0,
-                volumeGainDb: 0.0,
-                ...options.audioConfig
-            };
+            // Edge TTS voice configuration (much better than Google Cloud!)
+            this.voiceProfile = options.voiceProfile || 'default';
+            this.voice = options.voice || 'en-US-AriaNeural';
+            this.rate = options.rate || '0%';
+            this.pitch = options.pitch || '0%';
+            this.volume = options.volume || '0%';
             
             this.outputDir = options.outputDir || path.join(__dirname, '../../audio-output');
             this.ensureOutputDir();
-            console.log('[TextToSpeechService CONSTRUCTOR] Instance created successfully.');
+            console.log('[TextToSpeechService CONSTRUCTOR] Edge TTS instance created successfully.');
         } catch (error) {
-            console.error('[TextToSpeechService CONSTRUCTOR] Error with Google Cloud TTS, using fallback:', error.message);
+            console.error('[TextToSpeechService CONSTRUCTOR] Error with Edge TTS, using fallback:', error.message);
             this.useFallback = true;
         }
     }
@@ -66,25 +50,21 @@ class TextToSpeechService {
                 return await this.synthesizeFallback(text, outputFile);
             }
             
-            const request = {
-                input: { text: text },
-                voice: this.voice,
-                audioConfig: this.audioConfig,
-            };
-
-            console.log('Synthesizing speech:', text);
-            const [response] = await this.client.synthesizeSpeech(request);
+            console.log('🤖 Synthesizing speech with Edge TTS (FREE):', text);
+            const audioContent = await this.edgeTTS.synthesizeSpeech(text, outputFile, this.voiceProfile);
             
             if (outputFile) {
                 const filePath = path.join(this.outputDir, outputFile);
-                fs.writeFileSync(filePath, response.audioContent, 'binary');
-                console.log(`Audio content written to file: ${filePath}`);
+                if (Buffer.isBuffer(audioContent)) {
+                    fs.writeFileSync(filePath, audioContent, 'binary');
+                    console.log(`Audio content written to file: ${filePath}`);
+                }
                 return filePath;
             }
             
-            return response.audioContent;
+            return audioContent;
         } catch (error) {
-            console.error('Text-to-speech error:', error);
+            console.error('Edge TTS error:', error);
             console.log('🔄 Falling back to system TTS');
             this.useFallback = true;
             return await this.synthesizeFallback(text, outputFile);
@@ -113,45 +93,56 @@ class TextToSpeechService {
 
     async synthesizeSSML(ssml, outputFile = null) {
         try {
-            const request = {
-                input: { ssml: ssml },
-                voice: this.voice,
-                audioConfig: this.audioConfig,
-            };
-
-            console.log('Synthesizing SSML:', ssml);
-            const [response] = await this.client.synthesizeSpeech(request);
+            console.log('🤖 Synthesizing SSML with Edge TTS:', ssml);
             
-            if (outputFile) {
-                const filePath = path.join(this.outputDir, outputFile);
-                fs.writeFileSync(filePath, response.audioContent, 'binary');
-                console.log(`Audio content written to file: ${filePath}`);
-                return filePath;
-            }
-            
-            return response.audioContent;
+            // Extract text from SSML for Edge TTS
+            const textContent = this.extractTextFromSSML(ssml);
+            return await this.synthesizeSpeech(textContent, outputFile);
         } catch (error) {
             console.error('SSML synthesis error:', error);
             throw error;
         }
     }
+    
+    extractTextFromSSML(ssml) {
+        // Simple SSML text extraction
+        return ssml
+            .replace(/<[^>]*>/g, '') // Remove all XML tags
+            .replace(/\s+/g, ' ') // Normalize spaces
+            .trim();
+    }
 
     async getVoices() {
-        try {
-            const [response] = await this.client.listVoices({});
-            return response.voices;
-        } catch (error) {
-            console.error('Error getting voices:', error);
-            throw error;
-        }
+        // Return available Edge TTS voices
+        return [
+            { name: 'en-US-AriaNeural', gender: 'FEMALE', description: 'High-quality female voice' },
+            { name: 'en-US-DavisNeural', gender: 'MALE', description: 'Deep, clear male voice' },
+            { name: 'en-US-JennyNeural', gender: 'FEMALE', description: 'Clear and authoritative' },
+            { name: 'en-US-GuyNeural', gender: 'MALE', description: 'Strong, clear voice' },
+            { name: 'en-US-AndrewNeural', gender: 'MALE', description: 'Natural male voice' },
+            { name: 'en-US-EmmaNeural', gender: 'FEMALE', description: 'Warm female voice' },
+            { name: 'en-US-BrianNeural', gender: 'MALE', description: 'Professional male voice' },
+            { name: 'en-US-AvaNeural', gender: 'FEMALE', description: 'Young adult female voice' }
+        ];
     }
 
     setVoice(voice) {
-        this.voice = { ...this.voice, ...voice };
+        if (typeof voice === 'string') {
+            this.voice = voice;
+        } else {
+            this.voice = voice.name || voice.voice || 'en-US-AriaNeural';
+        }
+        console.log(`🎤 Voice set to: ${this.voice}`);
     }
 
-    setAudioConfig(config) {
-        this.audioConfig = { ...this.audioConfig, ...config };
+    setVoiceProfile(profile) {
+        this.voiceProfile = profile;
+        console.log(`🎛️ Voice profile set to: ${profile}`);
+    }
+
+    setRate(rate) {
+        this.rate = rate;
+        console.log(`⚡ Speech rate set to: ${rate}`);
     }
 
     // Create SSML with car-specific context
@@ -181,58 +172,35 @@ class TextToSpeechService {
 
     // Emergency/urgent announcements
     async synthesizeUrgent(text, outputFile = null) {
-        const urgentSSML = `
-            <speak>
-                <prosody rate="fast" volume="loud" pitch="+2st">
-                    <emphasis level="strong">
-                        ${text}
-                    </emphasis>
-                </prosody>
-            </speak>
-        `;
-        
-        return await this.synthesizeSSML(urgentSSML, outputFile);
+        return await this.edgeTTS.speakUrgent(text);
     }
 
     // Navigation announcements
     async synthesizeNavigation(text, outputFile = null) {
-        const navSSML = `
-            <speak>
-                <prosody rate="medium" volume="loud">
-                    <emphasis level="moderate">
-                        ${text}
-                    </emphasis>
-                </prosody>
-            </speak>
-        `;
-        
-        return await this.synthesizeSSML(navSSML, outputFile);
+        return await this.edgeTTS.speakNavigation(text);
     }
 
     // Casual conversation
     async synthesizeCasual(text, outputFile = null) {
-        const casualSSML = `
-            <speak>
-                <prosody rate="medium" volume="medium" pitch="-1st">
-                    ${text}
-                </prosody>
-            </speak>
-        `;
-        
-        return await this.synthesizeSSML(casualSSML, outputFile);
+        return await this.edgeTTS.speakCasual(text);
     }
 
-    // Play audio using system audio player
+    // Play audio using Edge TTS or system audio player
     async playAudio(audioContent) {
         try {
             if (this.useFallback || (audioContent && audioContent.toString() === 'fallback-audio')) {
                 return await this.playAudioFallback(this.lastSpokenText || 'Response generated');
             }
             
+            // Use Edge TTS service's optimized audio playback
+            if (this.edgeTTS) {
+                return await this.edgeTTS.playAudio(audioContent);
+            }
+            
+            // Fallback to basic playback
             const tempFile = path.join(this.outputDir, `temp_${Date.now()}.mp3`);
             fs.writeFileSync(tempFile, audioContent, 'binary');
             
-            // Use system audio player
             const { exec } = require('child_process');
             const command = process.platform === 'darwin' ? 'afplay' : 
                           process.platform === 'win32' ? 'start' : 'aplay';
@@ -254,7 +222,6 @@ class TextToSpeechService {
             
         } catch (error) {
             console.error('Error playing audio:', error);
-            // Fall back to system TTS
             await this.playAudioFallback(this.lastSpokenText || 'Error occurred');
         }
     }

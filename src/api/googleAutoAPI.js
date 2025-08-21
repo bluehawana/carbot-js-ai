@@ -124,7 +124,7 @@ class GoogleAutoAPI {
             const initialized = await this.wakeWordDetector.initialize();
             if (initialized) {
                 this.wakeWordDetector.onWakeWord(() => {
-                    console.log('Wake word detected: "Hej Car"');
+                    console.log('Wake word detected: "Hello My Car"');
                     this.handleWakeWord();
                 });
             } else {
@@ -221,10 +221,10 @@ class GoogleAutoAPI {
                     // Show STT text popup for user confirmation
                     this.broadcastAndroidAutoPopup('stt_text', 'Hello My Car', 2000);
                     
-                    // Show CarBot response popup after brief delay
+                    // Show CarBot response popup after brief delay (reduced timing for better UX)
                     setTimeout(() => {
-                        this.broadcastAndroidAutoPopup('bot_speech', 'Hello master, what can I do for you today?', 4000);
-                    }, 1000);
+                        this.broadcastAndroidAutoPopup('bot_speech', 'Hello master, what can I do for you today?', 3000);
+                    }, 500); // Reduced from 1000ms to 500ms
                     
                     res.json({ 
                         success: true, 
@@ -245,8 +245,8 @@ class GoogleAutoAPI {
             }
         });
         
-        // Voice command endpoint for testing conversation flow
-        this.app.post('/api/voice-command', (req, res) => {
+        // Voice command endpoints (both paths for compatibility)
+        const handleVoiceCommand = (req, res) => {
             try {
                 const { command } = req.body;
                 if (!command) {
@@ -298,7 +298,10 @@ class GoogleAutoAPI {
                     error: error.message 
                 });
             }
-        });
+        };
+        
+        this.app.post('/api/voice-command', handleVoiceCommand);
+        this.app.post('/api/voice', handleVoiceCommand); // Android compatibility
 
         // Android Auto popup notification endpoint
         this.app.post('/api/show-popup', (req, res) => {

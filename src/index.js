@@ -71,11 +71,15 @@ class CarBot {
             
             console.log(`🎤 ${assistantName}: "${greetingMessage}"`);
             
-            // Send greeting to TTS
+            // Reduced delay for faster startup experience
+            await new Promise(resolve => setTimeout(resolve, 2000)); // 2 second delay (reduced from 4)
+            
+            // Send greeting to TTS with optimized greeting profile for speed
             try {
                 if (this.carSystem) {
-                    const audioResponse = await this.carSystem.speakResponse(greetingMessage);
-                    console.log('🔊 Startup greeting ready for playback');
+                    // Use new 'greeting' profile optimized for fast startup
+                    const audioResponse = await this.carSystem.speakResponse(greetingMessage, { profile: 'greeting' });
+                    console.log('🔊 Startup greeting ready for playback (optimized)');
                     
                     // Optionally play immediately or send to Android app
                     this.broadcastGreeting(greetingMessage, audioResponse);

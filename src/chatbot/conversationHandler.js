@@ -36,7 +36,7 @@ Key guidelines:
 
 Current car context will be provided with each conversation.
 
-Remember: You are activated by the wake word "Hej Car" and should respond naturally to user queries.`;
+Remember: You are activated by the wake word "Hello My Car" and should respond naturally to user queries.`;
     }
 
     async processMessage(userMessage, carContext = null) {

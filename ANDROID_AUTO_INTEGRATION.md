@@ -145,6 +145,26 @@ carbot> quit                         # Exit CLI
 
 ## 🔧 Configuration
 
+### Android Backend Configuration
+To connect the Android app to your CarBot backend, you need to create a `local.properties` file in the `CarBotAndroid` directory of the project. This file will contain the IP address of your backend server and your Picovoice Access Key.
+
+1.  **Create the file:**
+    ```bash
+    touch CarBotAndroid/local.properties
+    ```
+
+2.  **Add the following properties to the file:**
+    ```properties
+    # IP address of the machine running the CarBot backend
+    carbot.api.base=http://<YOUR_COMPUTER_IP_ADDRESS>:3000
+
+    # Your Picovoice Access Key from https://console.picovoice.ai/
+    picovoice.access.key=<YOUR_PICOVOICE_ACCESS_KEY>
+    ```
+
+    *   Replace `<YOUR_COMPUTER_IP_ADDRESS>` with the actual IP address of your computer. You can find this by running `ifconfig` (on macOS/Linux) or `ipconfig` (on Windows) in your terminal.
+    *   Replace `<YOUR_PICOVOICE_ACCESS_KEY>` with your key from the Picovoice console.
+
 ### Environment Variables
 ```bash
 # Required
